@@ -11,10 +11,10 @@ from Motor import Motor
 if __name__ == '__main__':
     try:
         # Robot execution code # 
-        motor = Motor()
+        motor = Motor("pi")
         print('motor initialized"')
         #move left wheel forward
-        motor.set(0.2, 0)
+        motor.set(0.6, 0.2)
         motor.shutdown()
     except: 
        motor.shutdown() 
