@@ -2,7 +2,7 @@
 
 # Imports
 
-from .Motor import Motor
+from Motor import Motor
 
 
 
