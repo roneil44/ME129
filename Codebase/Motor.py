@@ -93,6 +93,9 @@ class Motor:
         resolution = 1.0/MAX_PWM_VALUE
         leftPWMValue = resolution * abs(leftdutycycle)
         rightPWMValue = resolution * abs(rightdutycycle)
+        if abs(leftdutycycle) > 1.0 or abs(rightdutycycle) > 1.0:
+            print('Make sure values are between -1.0 and +1.0')
+            return
         if leftdutycycle < 0:
             #going backward, set MTR2_LEGB
             print("Moving left wheel backwards...")
