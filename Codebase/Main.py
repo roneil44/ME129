@@ -12,7 +12,7 @@ if __name__ == '__main__':
     try:
         # Robot execution code # 
         motor = Motor()
-        print('moto initialized"')
+        print('motor initialized"')
         #move left wheel forward
         motor.set(0.2, 0)
         motor.shutdown()
