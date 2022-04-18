@@ -3,6 +3,7 @@
 # Imports
 
 from Motor import Motor
+import time
 
 
 
@@ -12,9 +13,9 @@ if __name__ == '__main__':
     try:
         # Robot execution code # 
         motor = Motor("pi")
-        print('motor initialized"')
-        #move left wheel forward
-        motor.set(0.6, 0.2)
+        print('motor initialized')
+        motor.set(-0.4, -0.4)
+        time.sleep(1)
         motor.shutdown()
     except: 
        motor.shutdown() 
