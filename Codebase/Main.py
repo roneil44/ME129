@@ -6,7 +6,10 @@ from Motor import Motor
 import time
 
 
-
+SLOW_SPEED = 0.3
+MID_SPEED = 0.6
+FAST_SPEED = 0.9
+SECONDS_RUN = 1
 ## Main Body
 
 if __name__ == '__main__':
@@ -14,8 +17,8 @@ if __name__ == '__main__':
         # Robot execution code # 
         motor = Motor("pi")
         print('motor initialized')
-        motor.set(0.4, 0.4)
-        time.sleep(1)
+        motor.set(SLOW_SPEED, SLOW_SPEED)
+        time.sleep(SECONDS_RUN)
         motor.shutdown()
     except: 
        motor.shutdown() 
