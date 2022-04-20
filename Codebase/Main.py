@@ -84,7 +84,8 @@ if __name__ == '__main__':
         # motors.movedist(.2)
         # motors.angle(120)
         # motors.movedist(.2)
-        # motors.stop(8)
+        # motors.angle(120)
+        # motors.stop(4)
 
         # print("Square")
         # motors.movedist(.2)
@@ -94,11 +95,13 @@ if __name__ == '__main__':
         # motors.movedist(.2)
         # motors.angle(90)
         # motors.movedist(.2)
+        # motors.angle(90)
+        # motors.stop(4)
         
 
         print("Problem 8")
         print("circle")
-        motors.setvel(.19635, 3.1415, 2)
+        motors.setvel(.157, -6.28, 3.85)
 
 
 

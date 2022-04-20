@@ -121,6 +121,7 @@ class Motor:
 
 
     def setspin(self, speed:float, direction:Optional[str]="l", duration:Optional[float] = 0):
+        # takes speed (0-1) an optional direction and duration and calls move
         # pwm_dutycycle = (speed + 157)/500
         if speed > 1:
             print("Speed is too high, note that input is in degrees/s")
@@ -136,14 +137,14 @@ class Motor:
 
     def angle(self, angle:float, direction:Optional[str]="l", speed:Optional[float]= .7):
         # Takes in aan angle, calculates time to rotate, and then calls setspin function
-        duration = angle/(500*speed - 157)
+        duration = angle/(510*speed - 160)
         self.setspin(speed, direction, duration)
 
 
 
-    def setvel(self, speed: float, w: float, duration:float):
-        # Takes a straight speed, rotation speed, and time. Then moves the robot the superposition of the two inputs
-        dutystraight = (speed+.156) / .624
+    def setvel(self, vel: float, w: float, duration:float):
+        # Takes a straight speed (m/s), rotation speed (rad/s), and time. Then moves the robot the superposition of the two inputs
+        dutystraight = (vel+.156) / .624
         dutyturn = (w + 157) / 500
         if w >= 0:
             left = dutystraight + dutyturn
@@ -153,9 +154,6 @@ class Motor:
             left = dutystraight - dutyturn
             right = dutystraight + dutyturn
             self.move(left, right, duration)
-
-        
-        
 
 
 
