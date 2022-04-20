@@ -77,27 +77,28 @@ if __name__ == '__main__':
         # motors.setspin(200,"l",1)
         # motors.stop()
 
-        print("Problem 7")
-        print("Triangle")
-        motors.movedist(40)
-        motors.angle(120)
-        motors.movedist(40)
-        motors.angle(120)
-        motors.movedist(40)
-        motors.stop(8)
+        # print("Problem 7")
+        # print("Triangle")
+        # motors.movedist(.2)
+        # motors.angle(120)
+        # motors.movedist(.2)
+        # motors.angle(120)
+        # motors.movedist(.2)
+        # motors.stop(8)
 
-        print("Square")
-        motors.movedist(40)
-        motors.angle(90)
-        motors.movedist(40)
-        motors.angle(90)
-        motors.movedist(40)
-        motors.angle(90)
-        motors.movedist(40)
-        motors.stop(8)
-
-
+        # print("Square")
+        # motors.movedist(.2)
+        # motors.angle(90)
+        # motors.movedist(.2)
+        # motors.angle(90)
+        # motors.movedist(.2)
+        # motors.angle(90)
+        # motors.movedist(.2)
         
+
+        print("Problem 8")
+        print("circle")
+        motors.setvel(.19635, 3.1415, 2)
 
 
 
