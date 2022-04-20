@@ -64,8 +64,8 @@ class Motor:
         # Note, out of bounds values will print a warning and set speed to 0
         
         #Convert to PWM
-        s1 = speed1 * self.PWM
-        s2 = speed2 * self.PWM
+        s1 = abs(speed1 * self.PWM)
+        s2 = abs(speed2 * self.PWM)
 
         if speed1 > 0 and speed1 <= 1 :
             self.io.set_PWM_dutycycle(self.LEG1A, s1)
@@ -115,41 +115,69 @@ class Motor:
         print("Turning off...")
         
         # Clear the PINs (commands).
-        self.io.set_PWM_dutycycle(self.LEGA, 0)
-        self.io.set_PWM_dutycycle(self.LEGB, 0)
+        self.io.set_PWM_dutycycle(self.LEG1A, 0)
+        self.io.set_PWM_dutycycle(self.LEG1B, 0)
+        self.io.set_PWM_dutycycle(self.LEG2A, 0)
+        self.io.set_PWM_dutycycle(self.LEG2B, 0)
 
         # Also stop the interface.
         self.io.stop()
-    
-    def set(self, leftdutycycle:float, rightdutycycle:float):
-        # positive value = going forward
-        # negative value = going backward
-        if abs(leftdutycycle) > 1.0 or abs(rightdutycycle) > 1.0:
-            print('Make sure values are between -1.0 and +1.0')
-            return
 
-        leftPWMValue = MAX_PWM_VALUE * abs(leftdutycycle)
-        rightPWMValue = MAX_PWM_VALUE * abs(rightdutycycle)
-        if leftdutycycle < 0:
-            #going backward, set MTR2_LEGB
-            print("Moving left wheel backwards...")
-            self.io.set_PWM_dutycycle(MTR2_LEGA, 0)
-            self.io.set_PWM_dutycycle(MTR2_LEGB, leftPWMValue)
+    def setspin(self, speed:float, direction:Optional[str]="l", duration:Optional[float] = 0):
+        pwm_dutycycle = (speed + 157)/500
+        if pwm_dutycycle > 1:
+            print("Speed is too high, note that input is in degrees/s")
+            return
+        if direction == "r":
+            self.move(pwm_dutycycle, -pwm_dutycycle, duration)
+        elif direction == "l":
+            self.move(-pwm_dutycycle, pwm_dutycycle, duration)
         else:
-            #going forward, set MTR2_LEGA
-            print("Moving left wheel forwards...")
-            self.io.set_PWM_dutycycle(MTR2_LEGB, 0)
-            self.io.set_PWM_dutycycle(MTR2_LEGA, leftPWMValue)
-        if rightdutycycle <0:
-            #going backward, set MTR1_LEGB
-            print("Moving right wheel backwards...")
-            self.io.set_PWM_dutycycle(MTR1_LEGA, 0)
-            self.io.set_PWM_dutycycle(MTR1_LEGB, rightPWMValue)
-            pass
+            print("Invalid direction")
+
+    #speed is in m/s
+    def setlinear(self, speed:float, direction:Optional[str]="f", duration:Optional[float] = 0):
+        pwm_dutycycle = (speed + 0.156)/0.624
+        if pwm_dutycycle > 1:
+            print("Speed is too high, note that input is in m/s")
+            return
+        if direction == "f":
+            self.move(pwm_dutycycle, pwm_dutycycle, duration)
+        elif direction == "b":
+            pwm_dutycycle = pwm_dutycycle * -1.0
+            self.move(pwm_dutycycle, pwm_dutycycle, duration)
         else:
-            #going forward, set MTR1_LEGA
-            print("Moving right wheel forwards...")
-            self.io.set_PWM_dutycycle(MTR1_LEGB, 0)
-            self.io.set_PWM_dutycycle(MTR1_LEGA, rightPWMValue)
+            print("Invalid direction")
+    
+    # def set(self, leftdutycycle:float, rightdutycycle:float):
+        # # positive value = going forward
+        # # negative value = going backward
+        # if abs(leftdutycycle) > 1.0 or abs(rightdutycycle) > 1.0:
+        #     print('Make sure values are between -1.0 and +1.0')
+        #     return
+
+        # leftPWMValue = MAX_PWM_VALUE * abs(leftdutycycle)
+        # rightPWMValue = MAX_PWM_VALUE * abs(rightdutycycle)
+        # if leftdutycycle < 0:
+        #     #going backward, set MTR2_LEGB
+        #     print("Moving left wheel backwards...")
+        #     self.io.set_PWM_dutycycle(MTR2_LEGA, 0)
+        #     self.io.set_PWM_dutycycle(MTR2_LEGB, leftPWMValue)
+        # else:
+        #     #going forward, set MTR2_LEGA
+        #     print("Moving left wheel forwards...")
+        #     self.io.set_PWM_dutycycle(MTR2_LEGB, 0)
+        #     self.io.set_PWM_dutycycle(MTR2_LEGA, leftPWMValue)
+        # if rightdutycycle <0:
+        #     #going backward, set MTR1_LEGB
+        #     print("Moving right wheel backwards...")
+        #     self.io.set_PWM_dutycycle(MTR1_LEGA, 0)
+        #     self.io.set_PWM_dutycycle(MTR1_LEGB, rightPWMValue)
+        #     pass
+        # else:
+        #     #going forward, set MTR1_LEGA
+        #     print("Moving right wheel forwards...")
+        #     self.io.set_PWM_dutycycle(MTR1_LEGB, 0)
+        #     self.io.set_PWM_dutycycle(MTR1_LEGA, rightPWMValue)
         
 

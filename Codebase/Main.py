@@ -28,46 +28,57 @@ if __name__ == '__main__':
     try:
 
         #################################################################
-        print("\nProblem 3.A")
-        time.sleep(2)
-        motors.move(.5, .5, 2)
-        motors.stop()
+        # print("\nProblem 3.A")
+        # time.sleep(2)
+        # motors.move(.5, .5, 2)
+        # motors.stop()
 
-        time.sleep(2)
-        motors.move(.75, .75, 2)
-        motors.stop()
-
-
-        #################################################################
-        print("\nProbelm 3.B")
-        time.sleep(2)
-        print("Driving Forward...")
-        motors.move(.67,.67,1)
-
-        print("Dwell...")
-        motors.stop(1)
-
-        print("Turn 180...")
-        motors.move(.607, -.607, 1)
-
-        print("Dwell...")
-        motors.stop(1)
-
-        print("Driving Forward...")
-        motors.move(.67, .67, 1)
-
-        print("Dwell...")
-        motors.stop(1)
-
-        print("Turn 180...")
-        motors.move(.607, -.607, 1)
-
-        print("Stop")
-        motors.stop(1)
+        # time.sleep(2)
+        # motors.move(.75, .75, 2)
+        # motors.stop()
 
 
         #################################################################
-        print("Problem 5")
+        # print("\nProbelm 3.B")
+        # time.sleep(2)
+        # print("Driving Forward...")
+        # motors.move(.67,.67,1)
+
+        # print("Dwell...")
+        # motors.stop(1)
+
+        # print("Turn 180...")
+        # motors.move(.607, -.607, 1)
+
+        # print("Dwell...")
+        # motors.stop(1)
+
+        # print("Driving Forward...")
+        # motors.move(.67, .67, 1)
+
+        # print("Dwell...")
+        # motors.stop(1)
+
+        # print("Turn 180...")
+        # motors.move(.607, -.607, 1)
+
+        # print("Stop")
+        # motors.stop(1)
+
+        
+
+        #################################################################
+        # print("Problem 5")
+
+        # motors.move(0.5,-0.5, 1.85)
+        # motors.stop()
+
+
+        #################################################################
+        print("Problem 6")
+        motors.setspin(200,"l",1)
+        motors.stop()
+
 
 
 
