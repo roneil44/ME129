@@ -4,8 +4,6 @@
 
 from Motor import Motor
 import time
-import pigpio
-import sys
 
 # Define the motor pins.
 MTR1_LEGA = 7
@@ -75,16 +73,31 @@ if __name__ == '__main__':
 
 
         #################################################################
-        print("Problem 6")
-        motors.setspin(200,"l",1)
-        motors.stop()
+        # print("Problem 6")
+        # motors.setspin(200,"l",1)
+        # motors.stop()
+
+        print("Problem 7")
+        print("Triangle")
+        motors.movedist(40)
+        motors.angle(120)
+        motors.movedist(40)
+        motors.angle(120)
+        motors.movedist(40)
+        motors.stop(8)
+
+        print("Square")
+        motors.movedist(40)
+        motors.angle(90)
+        motors.movedist(40)
+        motors.angle(90)
+        motors.movedist(40)
+        motors.angle(90)
+        motors.movedist(40)
+        motors.stop(8)
 
 
-
-
-
-
-
+        
 
 
 

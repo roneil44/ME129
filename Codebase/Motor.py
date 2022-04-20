@@ -56,6 +56,8 @@ class Motor:
 
         print("GPIO ready...")
 
+
+
     def move(self, speed1:float, speed2:float, duration):
         #Detects if movement direction should be forward or backward and then calls the motor for movement
         # For our own benfit we could make this take a value beteen -100 to 100 or -1 to 1 if we don't want 
@@ -93,6 +95,52 @@ class Motor:
 
         time.sleep(duration)
 
+
+
+    def movedist(self, dist:float, speed:Optional[float] = .7):
+        # Takes in a distance, calculates time to move, and then calls move function
+        duration = dist/(.624*speed - .156)
+        self.move(speed, speed, duration)
+    
+
+
+    #speed is in m/s
+    def setlinear(self, speed:float, direction:Optional[str]="f", duration:Optional[float] = 0):
+        pwm_dutycycle = (speed + 0.156)/0.624
+        if pwm_dutycycle > 1:
+            print("Speed is too high, note that input is in m/s")
+            return
+        if direction == "f":
+            self.move(pwm_dutycycle, pwm_dutycycle, duration)
+        elif direction == "b":
+            pwm_dutycycle = pwm_dutycycle * -1.0
+            self.move(pwm_dutycycle, pwm_dutycycle, duration)
+        else:
+            print("Invalid direction")
+    
+
+
+    def setspin(self, speed:float, direction:Optional[str]="l", duration:Optional[float] = 0):
+        pwm_dutycycle = (speed + 157)/500
+        if pwm_dutycycle > 1:
+            print("Speed is too high, note that input is in degrees/s")
+            return
+        if direction == "r":
+            self.move(pwm_dutycycle, -pwm_dutycycle, duration)
+        elif direction == "l":
+            self.move(-pwm_dutycycle, pwm_dutycycle, duration)
+        else:
+            print("Invalid direction")
+
+
+
+    def angle(self, angle:float, direction:Optional[str]="l", speed:Optional[float]= .7):
+        # Takes in aan angle, calculates time to rotate, and then calls setspin function
+        duration = angle/(500*speed - 157)
+        self.setspin(speed, direction, duration)
+
+
+
     def stop(self, duration:Optional[float] = 0):
         # stops any motor movement without removing IO
         self.io.set_PWM_dutycycle(self.LEG1A, 0)
@@ -101,10 +149,8 @@ class Motor:
         self.io.set_PWM_dutycycle(self.LEG2B, 0)
         time.sleep(duration)
 
-    def movedist(self, dist:float):
-        #Might want a method that takes in a distance rather than speed input
-        pass
-    
+
+
     def shutdown(self):
         ############################################################
         # Turn Off.
@@ -123,31 +169,7 @@ class Motor:
         # Also stop the interface.
         self.io.stop()
 
-    def setspin(self, speed:float, direction:Optional[str]="l", duration:Optional[float] = 0):
-        pwm_dutycycle = (speed + 157)/500
-        if pwm_dutycycle > 1:
-            print("Speed is too high, note that input is in degrees/s")
-            return
-        if direction == "r":
-            self.move(pwm_dutycycle, -pwm_dutycycle, duration)
-        elif direction == "l":
-            self.move(-pwm_dutycycle, pwm_dutycycle, duration)
-        else:
-            print("Invalid direction")
 
-    #speed is in m/s
-    def setlinear(self, speed:float, direction:Optional[str]="f", duration:Optional[float] = 0):
-        pwm_dutycycle = (speed + 0.156)/0.624
-        if pwm_dutycycle > 1:
-            print("Speed is too high, note that input is in m/s")
-            return
-        if direction == "f":
-            self.move(pwm_dutycycle, pwm_dutycycle, duration)
-        elif direction == "b":
-            pwm_dutycycle = pwm_dutycycle * -1.0
-            self.move(pwm_dutycycle, pwm_dutycycle, duration)
-        else:
-            print("Invalid direction")
     
     # def set(self, leftdutycycle:float, rightdutycycle:float):
         # # positive value = going forward
