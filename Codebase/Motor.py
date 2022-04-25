@@ -142,7 +142,7 @@ class Motor:
 
 
     def setvel(self, vel: float, w: float, duration:float):
-        # Takes a straight speed (m/s), rotation speed (rad/s), and time. Then moves the robot the superposition of the two inputs
+        # Takes a straight speed (m/s), rotation speed (deg/s), and time. Then moves the robot the superposition of the two inputs
         dutystraight = (vel+.156) / .624
         dutyturn = (w + 157) / 500
         if w >= 0:
