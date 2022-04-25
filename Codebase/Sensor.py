@@ -26,7 +26,7 @@ class Sensor:
             print("Unable to connection to pigpio daemon!")
             sys.exit(0)
 
-        # Set up the four pins as output (commanding the motors).
+        # Set up the four pins as input (reading sensor states).
         self.io.set_mode(sens1, pigpio.INPUT)
         self.io.set_mode(sens2, pigpio.INPUT)
         self.io.set_mode(sens3, pigpio.INPUT)
