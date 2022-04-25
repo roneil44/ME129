@@ -145,9 +145,13 @@ class Motor:
         # Takes a straight speed (m/s), rotation speed (rad/s), and time. Then moves the robot the superposition of the two inputs
         dutystraight = (vel+.156) / .624
         dutyturn = (w + 157) / 500
-        if w >= 0:
+        if w > 0:
             left = dutystraight + dutyturn
             right = dutystraight - dutyturn
+            self.move(left, right, duration)
+        elif w == 0:
+            left = 0
+            right = 0
             self.move(left, right, duration)
         elif w< 0:
             left = dutystraight - dutyturn
