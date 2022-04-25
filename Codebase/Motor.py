@@ -5,7 +5,6 @@ import pigpio
 import sys
 import time
 
-# Define the motor pins.
 
 
 
