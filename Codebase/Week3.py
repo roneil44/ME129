@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
         print("Problem 8")
         print("circle")
-        motors.setvel(.157, -6.28, 3.85)
+        motors.setvel(.1, -100, 3.85)
 
 
 
