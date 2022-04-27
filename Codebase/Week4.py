@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
             elif state == 0 and edge == 'l': #drifted off left edge
                 left = 0.9
-                rigt = 0.3
+                rigt = 0.2
                 while True:
                     motors.move(left, rigt, 0.05)
                     rigt += 0.001
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
 
             elif state == 0 and edge == 'r': #drifted off right edge
-                left = 0.3
+                left = 0.2
                 rigt = 0.9
                 while True:
                     motors.move(left, rigt, 0.05)
@@ -131,10 +131,9 @@ if __name__ == '__main__':
                     motors.setvel(0, -200, 0.01)
                 elif edge == 'l':
                     motors.setvel(0, 200, 0.01)
+                else:
+                    motors.setvel(0, 200, 0.01)
 
-
-            else:
-                motors.stop() #haven't addressed this yet
 
             print(edge)
             print(state)
