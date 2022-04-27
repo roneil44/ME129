@@ -61,34 +61,78 @@ if __name__ == '__main__':
                     state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
                     if state != 0:
                         break
+
+
             elif state == 0 and edge == 'l': #drifted off left edge
-                motors.setvel(0, 200, 0.01)
+                left = 0.9
+                rigt = 0.3
+                while True:
+                    motors.move(left, rigt, 0.05)
+                    rigt += 0.001
+                    if rigt >= 0.9:
+                        rigt =0.9
+                    print(rigt)
+                    sensor_state = sensors.read()
+                    state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
+                    if state != 0:
+                        break
+
+
+                # motors.setvel(0, 200, 0.01)
+
+
             elif state == 0 and edge == 'r': #drifted off right edge
-                motors.setvel(0, -200, 0.01)
+                left = 0.3
+                rigt = 0.9
+                while True:
+                    motors.move(left, rigt, 0.05)
+                    left += 0.001
+                    if left >= 0.9:
+                        left =0.9
+                    print(left)
+                    sensor_state = sensors.read()
+                    state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
+                    if state != 0:
+                        break
+                # motors.setvel(0, -200, 0.01)
+
+
             elif state == 1: #Drifted far left
                 motors.setvel(0.1, 100, 0.01)
                 edge = 'l'
+
+
             elif state == 2: #Bot Centered
                 motors.setvel(0.35, 0, 0.01)
                 edge = 'c'
+
+
             elif state == 3: #Drifted Left
                 motors.setvel(0.1, 50, 0.01)
                 edge = 'l'
+
+
             elif state == 4: #Drfted far right
                 motors.setvel(0.1, -100, 0.01)
                 edge = 'r'
+
+
             elif state == 5: #Split in the tape
                 pass
+
+
             elif state == 6: #Drifted Right
                 motors.setvel(0.1, -50, 0.01)
                 edge = 'r'
+
+
             elif state == 7:  #Thick part of tape
                 if edge == 'r':
                     motors.setvel(0, -200, 0.01)
                 elif edge == 'l':
                     motors.setvel(0, 200, 0.01)
 
-                pass            
+
             else:
                 motors.stop() #haven't addressed this yet
 
