@@ -1,4 +1,5 @@
 # imports
+from turtle import left
 import pigpio
 import sys
 import time
@@ -9,6 +10,8 @@ MTR1_LEGB = 8
 
 MTR2_LEGA = 5
 MTR2_LEGB = 6
+
+MAX_PWM_VALUE = 255
 
 class Motor:
 
@@ -85,5 +88,34 @@ class Motor:
         pass
     
     def set(self, leftdutycycle:float, rightdutycycle:float):
-        pass
+        # positive value = going forward
+        # negative value = going backward
+        if abs(leftdutycycle) > 1.0 or abs(rightdutycycle) > 1.0:
+            print('Make sure values are between -1.0 and +1.0')
+            return
+
+        leftPWMValue = MAX_PWM_VALUE * abs(leftdutycycle)
+        rightPWMValue = MAX_PWM_VALUE * abs(rightdutycycle)
+        if leftdutycycle < 0:
+            #going backward, set MTR2_LEGB
+            print("Moving left wheel backwards...")
+            self.io.set_PWM_dutycycle(MTR2_LEGA, 0)
+            self.io.set_PWM_dutycycle(MTR2_LEGB, leftPWMValue)
+        else:
+            #going forward, set MTR2_LEGA
+            print("Moving left wheel forwards...")
+            self.io.set_PWM_dutycycle(MTR2_LEGB, 0)
+            self.io.set_PWM_dutycycle(MTR2_LEGA, leftPWMValue)
+        if rightdutycycle <0:
+            #going backward, set MTR1_LEGB
+            print("Moving right wheel backwards...")
+            self.io.set_PWM_dutycycle(MTR1_LEGA, 0)
+            self.io.set_PWM_dutycycle(MTR1_LEGB, rightPWMValue)
+            pass
+        else:
+            #going forward, set MTR1_LEGA
+            print("Moving right wheel forwards...")
+            self.io.set_PWM_dutycycle(MTR1_LEGB, 0)
+            self.io.set_PWM_dutycycle(MTR1_LEGA, rightPWMValue)
+        
 
