@@ -13,8 +13,7 @@ class Sensor:
         self.name = name
         self.sens1 = sens1
         self.sens2 = sens2
-        self.sens3 = sens3
-        
+        self.sens3 = sens3        
 
         ############################################################
         # Prepare the GPIO connetion (to command the motors).
@@ -26,7 +25,11 @@ class Sensor:
             print("Unable to connection to pigpio daemon!")
             sys.exit(0)
 
+<<<<<<< HEAD
         # Set up the four pins as input (reading sensor states).
+=======
+        # Set up the four pins as input (taking in sensor input).
+>>>>>>> 0b310df0225eecf81d197fc464238fbe10e98f39
         self.io.set_mode(sens1, pigpio.INPUT)
         self.io.set_mode(sens2, pigpio.INPUT)
         self.io.set_mode(sens3, pigpio.INPUT)
