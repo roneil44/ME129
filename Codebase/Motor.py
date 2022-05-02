@@ -110,6 +110,7 @@ class Motor:
             print("Speed is too high, note that input is in m/s")
             return
         if direction == "f":
+
             self.move(pwm_dutycycle, pwm_dutycycle, duration)
         elif direction == "b":
             pwm_dutycycle = pwm_dutycycle * -1.0
