@@ -8,6 +8,8 @@ from turtle import right
 from Motor import Motor
 import time
 from Sensor import Sensor
+import config
+from Intersection import Intersection
 
 # Define the motor pins.
 MTR1_LEGA = 7
@@ -22,6 +24,9 @@ sen_right_pin = 18
 
 MAX_PWM_VALUE = 254
 PWM_FREQ = 1000
+
+
+
 
 def drive(motors, sensors):
     #returns 0 at end
@@ -106,6 +111,28 @@ def check(motors, sensors):
 
     return(streets)
 
+# New longitude/latitude value after a step in the given heading.
+def shift(long, lat, heading):
+    if heading % 4 == NORTH:
+        return (long, lat+1)
+    elif heading % 4 == WEST:
+        return (long-1, lat)
+    elif heading % 4 == SOUTH:
+        return (long, lat-1)
+    elif heading % 4 == EAST:
+        return (long+1, lat)
+    else:
+        raise Exception("This can’t be")
+
+# Find the intersection
+def intersection(long, lat):
+    list = [i for i in config.intersections if i.long == long and i.lat == lat]
+    if len(list) == 0:
+        return None
+    if len(list) > 1:
+        raise Exception("Multiple intersections at (%2d,%2d)" % (long, lat))
+    return list[0]
+    
 ## Main Body
 
 if __name__ == '__main__':
