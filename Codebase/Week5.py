@@ -29,7 +29,7 @@ PWM_FREQ = 1000
 # the robot always assumes it travels north first and then appends the next direction
 Direction = ["North"]
 # Map is a dictionary where the key is the tuple of longitude and latitude
-# The value is a list of tuples of whether a path exist and has been traveled
+# The value is a list of available paths and a list of whether they have been explored
 Map = {}
 
 
@@ -103,8 +103,8 @@ def spin(motors, sensors, turn_magnitude):
 #Returns array of existence of streets
 #streets[0] is the street to the front of the robot
 #streets[1] is the street to the left of the robot, etc. in counterclockwise order
-def check(motors, sensors):
-    # streets will take the form North, West, East, South
+def check(motors, sensors) -> list: 
+    # streets will take the form North, West, South, East
     streets = [False, False, False, False]
     # for i in range(3):
     #     state = sensors.read()
@@ -115,32 +115,59 @@ def check(motors, sensors):
     
     # Set up check for straight, left, right, back to straight
     if Direction[-1] == "North":
-        streets[4] = True
+        streets[2] = True
     elif Direction[-1] == "South":
-        streets[1] = True
+        streets[0] = True
     elif Direction[-1] == "West":
         streets[3] = True
     elif Direction[-1] == "East":
-        streets[2] = True
+        streets[1] = True
 
     # Check direction ahead immediately 
     state = sensors.read()
     if state != 0:
-         if Direction[-1] == "North":
-            streets[1] = True
+        if Direction[-1] == "North":
+            streets[0] = True
         elif Direction[-1] == "South":
-            streets[4] = True
+            streets[2] = True
         elif Direction[2] == "West":
-            streets[3] = True
+            streets[1] = True
         elif Direction[-1] == "East":
             streets[3] = True
 
-    
-    
+    # Turn to the left and detect if there is a line there
+    spin(motors, sensors, 1)
+    state = sensors.read()
+    if state != 0:
+        if Direction[-1] == "North":
+            streets[1] = True
+        elif Direction[-1] == "South":
+            streets[3] = True
+        elif Direction[2] == "West":
+            streets[2] = True
+        elif Direction[-1] == "East":
+            streets[0] = True
+
+    # turn 180 back to the right and update streets
     spin(motors, sensors, 2)
-    spin(motors, sensors, -1)
-    motors.stop()
+    state = sensors.read()
+    if state != 0:
+        if Direction[-1] == "North":
+            streets[3] = True
+        elif Direction[-1] == "South":
+            streets[1] = True
+        elif Direction[2] == "West":
+            streets[0] = True
+        elif Direction[-1] == "East":
+            streets[2] = True
+
+    # Reset bot to center
+    spin(motors, sensors, 1)
     return(streets)
+
+def choose_unexplored_direction(self):
+
+    pass
 
 # Update longitude/latitude value after a step in the given heading.
 def shift(long, lat, heading):
