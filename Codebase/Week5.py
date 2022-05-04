@@ -169,6 +169,14 @@ def choose_unexplored_direction(self):
 
     pass
 
+def check_map(coords):
+    # This function checks to see if the bot has been to this location
+    # if it hasn't been it calls check and adds the current intersection to the map
+    if Map.has_key(coords) == True:
+        return Map[coords]
+    else:
+        
+
 # Update longitude/latitude value after a step in the given heading.
 def shift(long, lat, heading):
     if heading % 4 == config.NORTH:
