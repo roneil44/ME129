@@ -25,7 +25,12 @@ sen_right_pin = 18
 MAX_PWM_VALUE = 254
 PWM_FREQ = 1000
 
-
+# direction is a list that stores every direction the robot has traveled in
+# the robot always assumes it travels north first and then appends the next direction
+Direction = ["North"]
+# Map is a dictionary where the key is the tuple of longitude and latitude
+# The value is a list of tuples of whether a path exist and has been traveled
+Map = {}
 
 
 def drive(motors, sensors):
@@ -36,10 +41,8 @@ def drive(motors, sensors):
     edge = 'c' #Set edge for sensor updates l, r or c
 
     while(exit_condition == -1):
-        sensor_state = sensors.read()
-
-        #sensor load
-        state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
+        #print("here")
+        state = sensors.read()
 
         if state == 0:
             exit_condition = 0
@@ -101,20 +104,45 @@ def spin(motors, sensors, turn_magnitude):
 #streets[0] is the street to the front of the robot
 #streets[1] is the street to the left of the robot, etc. in counterclockwise order
 def check(motors, sensors):
+    # streets will take the form North, West, East, South
     streets = [False, False, False, False]
-    for i in range(3):
-        sensor_state = sensors.read()
-        state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
-        if state != 0:
-            streets[i] = True
-        spin(motors, sensors, 1)
-        motors.stop()
+    # for i in range(3):
+    #     state = sensors.read()
+    #     if state != 0:
+    #         streets[i] = True
+    #     spin(motors, sensors, 1)
+    #     motors.stop()
+    
+    # Set up check for straight, left, right, back to straight
+    if Direction[-1] == "North":
+        streets[4] = True
+    elif Direction[-1] == "South":
+        streets[1] = True
+    elif Direction[-1] == "West":
+        streets[3] = True
+    elif Direction[-1] == "East":
+        streets[2] = True
+
+    # Check direction ahead immediately 
+    state = sensors.read()
+    if state != 0:
+         if Direction[-1] == "North":
+            streets[1] = True
+        elif Direction[-1] == "South":
+            streets[4] = True
+        elif Direction[2] == "West":
+            streets[3] = True
+        elif Direction[-1] == "East":
+            streets[3] = True
+
+    
+    
     spin(motors, sensors, 2)
     spin(motors, sensors, -1)
     motors.stop()
     return(streets)
 
-# New longitude/latitude value after a step in the given heading.
+# Update longitude/latitude value after a step in the given heading.
 def shift(long, lat, heading):
     if heading % 4 == config.NORTH:
         return (long, lat+1)
