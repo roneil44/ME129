@@ -113,13 +113,13 @@ def check(motors, sensors):
 
 # New longitude/latitude value after a step in the given heading.
 def shift(long, lat, heading):
-    if heading % 4 == NORTH:
+    if heading % 4 == config.NORTH:
         return (long, lat+1)
-    elif heading % 4 == WEST:
+    elif heading % 4 == config.WEST:
         return (long-1, lat)
-    elif heading % 4 == SOUTH:
+    elif heading % 4 == config.SOUTH:
         return (long, lat-1)
-    elif heading % 4 == EAST:
+    elif heading % 4 == config.EAST:
         return (long+1, lat)
     else:
         raise Exception("This can’t be")
