@@ -113,7 +113,7 @@ def check(motors, sensors) -> list:
     #     spin(motors, sensors, 1)
     #     motors.stop()
     
-    # Set up check for straight, left, right, back to straight
+    # Automatically assign available path behind to true
     if Direction[-1] == "North":
         streets[2] = True
     elif Direction[-1] == "South":
@@ -165,28 +165,124 @@ def check(motors, sensors) -> list:
     spin(motors, sensors, 1)
     return(streets)
 
-def choose_unexplored_direction(self):
+def choose_unexplored_direction(coords):
+    #get potential paths
+    [available_paths, explored_paths] = Map[coords]
 
-    pass
+    # create a list that stores which paths are unexplored
+    unexplored = []
+    available = []
+    both = []
 
-def check_map(coords):
+    for i in range(4):
+        if explored_paths[i] == False:
+            unexplored.append(i)
+
+    for k in range(4):
+        if available_paths[i] == True:
+            available.append(k)
+
+    for j in range(4):
+        if explored_paths[k] == False and available_paths[k] == True:
+            both.append(k)
+
+
+    # If all avaialble paths have been explored move in the first available direction
+    # currently prioritizes North -> West -> South -> East
+    if len(unexplored) == 0:
+        next_dir = available[0]
+    else:# If there are unexplored paths choose the first one
+        next_dir = both[0]
+    
+    # Convert current direction to integer
+    current = direct_to_int()
+
+    # Find difference between current direction and desired direction
+    change = next_dir - current
+    spin(motors, sensors, change)
+
+    # Append next direction to directions list
+    update = int_to_direction(next_dir)
+    Direction.append(update)
+
+    #Set current path to explored
+    explored_paths[next_dir] = True
+    Map[coords] = [available_paths, explored_paths]
+    
+
+
+def direct_to_int(self):
+    if Direction[-1] == "North":
+        return 0
+    elif Direction[-1] == "West":
+        return 1
+    elif Direction[-1] == "South":
+        return 2
+    elif Direction[-1] == "East":
+        return 3
+    else:
+        raise Exception("Invaalid previous direction")
+
+def int_to_direction(dir: int):
+    if dir == 0:
+        return "North"
+    elif dir == 1:
+        return "West"
+    elif dir == 2:
+        return "South"
+    elif dir == 3:
+        return "West"
+    else:
+        raise Exception("Invaalid new direction")
+
+def get_map(coords):
     # This function checks to see if the bot has been to this location
     # if it hasn't been it calls check and adds the current intersection to the map
+    # Also generates a list of whether each path has been traveled in the order
+    # North, West, South, East
+    
+    explored_paths = [False, False, False, False]
+
+    # Add path traveled to get to the instersection as true
+    if Direction[-1] == "North":
+        explored_paths[2] = True
+    elif Direction[-1] == "South":
+        explored_paths[0] = True
+    elif Direction[-1] == "West":
+        explored_paths[3] = True
+    elif Direction[-1] == "East":
+        explored_paths[1] = True
+
     if Map.has_key(coords) == True:
         return Map[coords]
     else:
+        available_paths = check(motors, sensors)
+        Map[coords] = [available_paths, explored_paths]
+
         
 
 # Update longitude/latitude value after a step in the given heading.
-def shift(long, lat, heading):
-    if heading % 4 == config.NORTH:
-        return (long, lat+1)
-    elif heading % 4 == config.WEST:
-        return (long-1, lat)
-    elif heading % 4 == config.SOUTH:
-        return (long, lat-1)
-    elif heading % 4 == config.EAST:
-        return (long+1, lat)
+def shift(coords):
+    if Direction[-1] == "NORTH":
+        (long, lat) = coords
+        lat += 1
+        coords = (long, lat)
+        return (coords)
+    elif Direction[-1] == "West":
+        (long, lat) = coords
+        long -= 1
+        coords = (long, lat)
+        return (coords)
+    elif Direction[-1] == "South":
+        (long, lat) = coords
+        lat -= 1
+        coords = (long, lat)
+        return (coords)
+    elif Direction[-1] == "East":
+        (long, lat) = coords
+        long += 1
+        coords = (long, lat)
+        return (coords)
     else:
         raise Exception("This can’t be")
 
@@ -223,6 +319,7 @@ if __name__ == '__main__':
 
         #Problem 5
         drive(motors, sensors)
+        coords = (0, 0)
         while True:
             # Drive forard until a corner is detected
             print("driving")
@@ -230,24 +327,11 @@ if __name__ == '__main__':
 
             # Check what available paths there are
             print("Finding paths")
-            paths = check(motors, sensors)
-            print(paths)
+            get_map(coords)
             time.sleep(.5)
+            choose_unexplored_direction
+            shift(coords)
 
-            # Pick the first viable path and move in that direction
-            temp = 0
-            for path in paths:
-                if path == True:
-                    print("found path")
-                    print(temp)
-                    if temp == 0:
-                        drive(motors, sensors)
-                    else:
-                        spin(motors, sensors, temp)
-                        drive(motors, sensors)
-                    break
-                else:
-                    temp += 1
 
 
     except BaseException as ex:
