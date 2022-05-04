@@ -101,18 +101,50 @@ def spin(motors, sensors, turn_magnitude):
 #streets[0] is the street to the front of the robot
 #streets[1] is the street to the left of the robot, etc. in counterclockwise order
 def check(motors, sensors):
-    streets = [False, False, False, False]
-    for i in range(3):
-        sensor_state = sensors.read()
-        state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
-        if state != 0:
-            streets[i] = True
-        spin(motors, sensors, 1)
-        motors.stop()
-    spin(motors, sensors, 2)
+
+    #stree search results - street behind robot exists by default
+    streets = [False, False, True, False]
+    
+    #check front street
+    sensor_state = sensors.read()
+    state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
+    if state!=0:
+        streets[0] = True
+
+    #check left street and return center
+    spin(motors, sensors, 1)
+    motors.stop()
+    sensor_state = sensors.read()
+    state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
+    if state!=0:
+        streets[1] = True
     spin(motors, sensors, -1)
     motors.stop()
+
+    #check right street and return center
+    spin(motors, sensors, -1)
+    motors.stop()
+    sensor_state = sensors.read()
+    state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
+    if state!=0:
+        streets[3] = True
+    spin(motors, sensors, 1)
+    motors.stop()
+    
     return(streets)
+
+    # streets = [False, False, False, False]
+    # for i in range(3):
+    #     sensor_state = sensors.read()
+    #     state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
+    #     if state != 0:
+    #         streets[i] = True
+    #     spin(motors, sensors, 1)
+    #     motors.stop()
+    # spin(motors, sensors, 2)
+    # spin(motors, sensors, -1)
+    # motors.stop()
+    # return(streets)
 
 # New longitude/latitude value after a step in the given heading.
 def shift(long, lat, heading):
@@ -163,7 +195,7 @@ if __name__ == '__main__':
         while True:
             # Drive forard until a corner is detected
             print("driving")
-            #drive(motors,sensors)
+            drive(motors,sensors)
 
             # Check what available paths there are
             print("Finding paths")
