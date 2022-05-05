@@ -192,7 +192,7 @@ def check_map(coords):
     if Map.has_key(coords) == True:
         return Map[coords]
 
-# Update longitude/latitude value after a step in the given heading.
+
 def shift(long, lat, heading):
     if heading % 4 == config.NORTH:
         return (long, lat+1)
@@ -302,7 +302,7 @@ if __name__ == '__main__':
         #             break
         #         else:
         #             temp += 1
-
+  
 
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
