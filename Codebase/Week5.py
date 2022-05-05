@@ -253,7 +253,7 @@ def get_map(coords):
     elif Direction[-1] == "East":
         explored_paths[1] = True
 
-    if Map.has_key(coords) == True:
+    if coords in Map == True:
         return Map[coords]
     else:
         available_paths = check(motors, sensors)
