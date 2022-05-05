@@ -95,11 +95,11 @@ def spin(motors, sensors, turn_magnitude):
     time.sleep(0.25)
     turn_magnitude = turn_magnitude % 4
     if(turn_magnitude == 3) or (turn_magnitude == -1):
-        motors.angle(120, "r") #doesn't quite turn 90 degrees when asked so overcompensated
+        motors.angle(115, "r") #doesn't quite turn 90 degrees when asked so overcompensated
     elif(turn_magnitude == 1) or (turn_magnitude == -3):
-        motors.angle(120, "l")
+        motors.angle(115, "l")
     elif(turn_magnitude == 2) or (turn_magnitude == -2):
-        motors.angle(240, "r")
+        motors.angle(230, "r")
     motors.stop()
     time.sleep(0.25)
     return
@@ -155,7 +155,9 @@ def check(motors, sensors) -> list:
             streets[0] = True
 
     # turn 180 back to the right and update streets
-    spin(motors, sensors, 2)
+    spin(motors, sensors, 1)
+    centerOnLine()
+    spin(motors, sensors, 1)
     state = sensors.read()
     if state != 0:
         centerOnLine()
@@ -175,42 +177,53 @@ def check(motors, sensors) -> list:
         centerOnLine
 
     motors.stop()
-    motors.setlinear(0.2,"b",1.55)
-    motors.stop()
-    time.sleep(0.25)
-    drive(motors, sensors)
+    # motors.setlinear(0.2,"b",1.55)
+    # motors.stop()
+    # time.sleep(0.25)
+    # drive(motors, sensors)
 
     return(streets)
 
 def choose_unexplored_direction(coords):
     #get potential paths
-    [available_paths, explored_paths] = Map[coords]
-
+    temp = get_map(coords)
+    available_paths = temp[0]
+    explored_paths = temp[1]
+    # treat unavailable paths as explored
+    for a in range(4):
+        if available_paths[a] == False:
+            explored_paths[a] == True
+    
+    
     # create a list that stores which paths are unexplored
     unexplored = []
     available = []
     both = []
-
+    
     for i in range(4):
         if explored_paths[i] == False:
             unexplored.append(i)
-
+    
     for k in range(4):
-        if available_paths[i] == True:
+        if available_paths[k] == True:
             available.append(k)
-
+      
+    
     for j in range(4):
-        if explored_paths[k] == False and available_paths[k] == True:
-            both.append(k)
-
+        if explored_paths[j] == False and available_paths[j] == True:
+            both.append(j)
+    
 
     # If all avaialble paths have been explored move in the first available direction
     # currently prioritizes North -> West -> South -> East
+    print(unexplored)
+    print(available)
+    print(both)
+
     if len(unexplored) == 0:
         next_dir = available[0]
     else:# If there are unexplored paths choose the first one
         next_dir = both[0]
-    
     # Convert current direction to integer
     current = direct_to_int()
 
@@ -220,6 +233,8 @@ def choose_unexplored_direction(coords):
 
     # Append next direction to directions list
     update = int_to_direction(next_dir)
+    print(update)
+    print("should drive forward now")
     Direction.append(update)
 
     #Set current path to explored
@@ -228,7 +243,7 @@ def choose_unexplored_direction(coords):
     
 
 
-def direct_to_int(self):
+def direct_to_int():
     if Direction[-1] == "North":
         return 0
     elif Direction[-1] == "West":
@@ -275,12 +290,13 @@ def get_map(coords):
     else:
         available_paths = check(motors, sensors)
         Map[coords] = [available_paths, explored_paths]
+        return Map[coords]
 
         
 
 # Update longitude/latitude value after a step in the given heading.
 def shift(coords):
-    if Direction[-1] == "NORTH":
+    if Direction[-1] == "North":
         (long, lat) = coords
         lat += 1
         coords = (long, lat)
@@ -301,7 +317,7 @@ def shift(coords):
         coords = (long, lat)
         return (coords)
     else:
-        raise Exception("This can’t be")
+        raise Exception("This cant be")
 
 # Find the intersection
 def intersection(long, lat):
@@ -364,31 +380,34 @@ if __name__ == '__main__':
         coords = (0, 0)
         while True:
             # Drive forard until a corner is detected
-            print("driving")
-            #drive(motors,sensors)
-
+            print("driving from")
+            print(coords)
+            print(Direction)
+            print("\n")
             # Check what available paths there are
             print("Finding paths")
-            get_map(coords)
-            time.sleep(.5)
-            choose_unexplored_direction
-            shift(coords)
+            choose_unexplored_direction(coords)
+            drive(motors,sensors)
+            print(Direction)
+            coords = shift(coords)
+            print(Map)
+            
 
 
         # spin(motors, sensors, 3)
         # spin(motors, sensors, 1)
 
         # Problem 3
-        turnList = [1, 3, 3, 3, 0]
-        for turn in turnList:
-            print("driving")
-            if(drive(motors, sensors) == 0):
-                print("Lost")
-                exit
-            print("turning")
-            spin(motors, sensors, turn)
-        drive(motors, sensors)
-        print(check(motors, sensors))
+        # turnList = [1, 3, 3, 3, 0]
+        # for turn in turnList:
+        #     print("driving")
+        #     if(drive(motors, sensors) == 0):
+        #         print("Lost")
+        #         exit
+        #     print("turning")
+        #     spin(motors, sensors, turn)
+        # drive(motors, sensors)
+        # print(check(motors, sensors))
 
 
         # #Problem 5
