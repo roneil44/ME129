@@ -34,12 +34,14 @@ class Sensor:
 
     def read(self) -> int:
     # Reads sensor array and return list of values
+        
         state1 = self.io.read(self.sens1)
         state2 = self.io.read(self.sens2)
         state3 = self.io.read(self.sens3)
 
         sensor_state = [state1,state2,state3]
         state = 4*sensor_state[0]+2*sensor_state[1]+sensor_state[2]
+        
         return state
         
     

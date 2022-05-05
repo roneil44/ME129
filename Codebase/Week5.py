@@ -48,22 +48,22 @@ def drive(motors, sensors):
             exit_condition = 0
 
         elif state == 1: #Drifted far left
-            motors.setvel(0.1, 100, 0.01)
-            edge = 'l'
-
-
-        elif state == 2: #Bot Centered
-            motors.setvel(0.35, 0, 0.01)
-            edge = 'c'
-
-
-        elif state == 3: #Drifted Left
             motors.setvel(0.1, 50, 0.01)
             edge = 'l'
 
 
+        elif state == 2: #Bot Centered
+            motors.setvel(0.3, 0, 0.01)
+            edge = 'c'
+
+
+        elif state == 3: #Drifted Left
+            motors.setvel(0.1, 25, 0.01)
+            edge = 'l'
+
+
         elif state == 4: #Drfted far right
-            motors.setvel(0.1, -100, 0.01)
+            motors.setvel(0.1, -50, 0.01)
             edge = 'r'
 
 
@@ -72,7 +72,7 @@ def drive(motors, sensors):
 
 
         elif state == 6: #Drifted Right
-            motors.setvel(0.1, -50, 0.01)
+            motors.setvel(0.1, -25, 0.01)
             edge = 'r'
 
         #intersection found
@@ -82,21 +82,25 @@ def drive(motors, sensors):
         #print(edge)
         #print(state)
 
+    motors.stop()
+    time.sleep(0.5)
     if(exit_condition == 1):
         print("Intersection detected")
-        motors.movedist(0.105)
+        motors.movedist(0.125,0.5)
     motors.stop()
+    time.sleep(0.25)
     return(exit_condition)
 
 def spin(motors, sensors, turn_magnitude):
     time.sleep(0.25)
     turn_magnitude = turn_magnitude % 4
     if(turn_magnitude == 3) or (turn_magnitude == -1):
-        motors.angle(68, "r") #doesn't quite turn 90 degrees when asked so overcompensated
+        motors.angle(120, "r") #doesn't quite turn 90 degrees when asked so overcompensated
     elif(turn_magnitude == 1) or (turn_magnitude == -3):
-        motors.angle(68, "l")
+        motors.angle(120, "l")
     elif(turn_magnitude == 2) or (turn_magnitude == -2):
-        motors.angle(136, "r")
+        motors.angle(240, "r")
+    motors.stop()
     time.sleep(0.25)
     return
 
@@ -126,6 +130,7 @@ def check(motors, sensors) -> list:
     # Check direction ahead immediately 
     state = sensors.read()
     if state != 0:
+        centerOnLine()
         if Direction[-1] == "North":
             streets[0] = True
         elif Direction[-1] == "South":
@@ -139,6 +144,7 @@ def check(motors, sensors) -> list:
     spin(motors, sensors, 1)
     state = sensors.read()
     if state != 0:
+        centerOnLine()
         if Direction[-1] == "North":
             streets[1] = True
         elif Direction[-1] == "South":
@@ -152,6 +158,7 @@ def check(motors, sensors) -> list:
     spin(motors, sensors, 2)
     state = sensors.read()
     if state != 0:
+        centerOnLine()
         if Direction[-1] == "North":
             streets[3] = True
         elif Direction[-1] == "South":
@@ -163,6 +170,16 @@ def check(motors, sensors) -> list:
 
     # Reset bot to center
     spin(motors, sensors, 1)
+    state = sensors.read()
+    if state!= 0:
+        centerOnLine
+
+    motors.stop()
+    motors.setlinear(0.2,"b",1.55)
+    motors.stop()
+    time.sleep(0.25)
+    drive(motors, sensors)
+
     return(streets)
 
 def choose_unexplored_direction(coords):
@@ -295,6 +312,33 @@ def intersection(long, lat):
         raise Exception("Multiple intersections at (%2d,%2d)" % (long, lat))
     return list[0]
     
+def centerOnLine():
+    state = sensors.read()
+    while state == 1 or state == 3 or state == 4 or state == 6:
+        
+        if state == 1: #Drifted far left
+            motors.setspin(0.8,'r',0.01)
+
+        elif state == 3: #Drifted Left
+            motors.setspin(0.6,'r',0.01)
+
+        elif state == 4: #Drfted far right
+            motors.setspin(0.8,'l',0.01)
+
+        elif state == 6: #Drifted Right
+            motors.setspin(0.6,'l',0.01)
+        
+        state = sensors.read()
+
+        if state == 2:
+            motors.stop()
+            time.sleep(0.25)
+            state = sensors.read()
+
+    motors.stop()
+    return state
+
+
 ## Main Body
 
 if __name__ == '__main__':
@@ -305,17 +349,15 @@ if __name__ == '__main__':
 
     
     try:
-        # # Problem 3
-        # turnList = [1, 3, 3, 3, 0]
-        # for turn in turnList:
-        #     print("driving")
-        #     if(drive(motors, sensors) == 0):
-        #         print("Lost")
-        #         exit
-        #     print("turning")
-        #     spin(motors, sensors, turn)
+
+        
+        # if drive(motors, sensors) == 1:
+        #     print(check(motors, sensors))
+
         # drive(motors, sensors)
-        # print(check(motors, sensors))
+        # spin(motors, sensors, 1)
+        # spin(motors, sensors, 3)
+
 
         #Problem 5
         drive(motors, sensors)
@@ -333,6 +375,50 @@ if __name__ == '__main__':
             shift(coords)
 
 
+        # spin(motors, sensors, 3)
+        # spin(motors, sensors, 1)
+
+        # Problem 3
+        turnList = [1, 3, 3, 3, 0]
+        for turn in turnList:
+            print("driving")
+            if(drive(motors, sensors) == 0):
+                print("Lost")
+                exit
+            print("turning")
+            spin(motors, sensors, turn)
+        drive(motors, sensors)
+        print(check(motors, sensors))
+
+
+        # #Problem 5
+        # drive(motors, sensors)
+        # while True:
+        #     # Drive forard until a corner is detected
+        #     print("driving")
+        #     #drive(motors,sensors)
+
+        #     # Check what available paths there are
+        #     print("Finding paths")
+        #     paths = check(motors, sensors)
+        #     print(paths)
+        #     time.sleep(.5)
+
+        #     # Pick the first viable path and move in that direction
+        #     temp = 0
+        #     for path in paths:
+        #         if path == True:
+        #             print("found path")
+        #             print(temp)
+        #             if temp == 0:
+        #                 drive(motors, sensors)
+        #             else:
+        #                 spin(motors, sensors, temp)
+        #                 drive(motors, sensors)
+        #             break
+        #         else:
+        #             temp += 1
+  
 
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
