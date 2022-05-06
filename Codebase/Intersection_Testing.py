@@ -129,7 +129,6 @@ def spin(motors, sensors, turn_magnitude):
 
     return
 
-
 def check(motors, sensors) -> list:
 
     startingDirection = Direction
@@ -137,12 +136,15 @@ def check(motors, sensors) -> list:
     # streets will take the form North, West, South, East
     streets = [False, False, False, False]
     for i in range(3):
+        motors.stop()
+        time.sleep(0.25)
         state = sensors.read()
         if state != 0:
             streets[i] = True
             centerOnLine()
         motors.stop()
         time.sleep(0.25)
+        spin(motors,sensors,1)
 
     #perform street rotation based on starting position
     numRotations = 0
@@ -164,16 +166,16 @@ def centerOnLine():
     while state == 1 or state == 3 or state == 4 or state == 6:
         
         if state == 1: #Drifted far left
-            motors.setspin(0.8,'r',0.01)
+            motors.angle(10,'r')
 
         elif state == 3: #Drifted Left
-            motors.setspin(0.6,'r',0.01)
+            motors.angle(5,'r')
 
         elif state == 4: #Drfted far right
-            motors.setspin(0.8,'l',0.01)
+            motors.angle(10,'l')
 
         elif state == 6: #Drifted Right
-            motors.setspin(0.6,'l',0.01)
+            motors.angle(5,'l')
         
         state = sensors.read()
 
@@ -198,7 +200,6 @@ if __name__ == '__main__':
     try:
 
         
-
         #Test drive ending with check
         turnList = [1, 3, 3, 3, 0]
         for turn in turnList:
@@ -208,6 +209,7 @@ if __name__ == '__main__':
                 exit
             print("turning")
             spin(motors, sensors, turn)
+            print(Direction)
         drive(motors, sensors)
         print(check(motors, sensors))
   
