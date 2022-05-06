@@ -199,8 +199,8 @@ class Motor:
             self.move(-1,1,0)
         elif direction == "r":
             self.move(1,-1,0)
-        time.sleep(0.02)
-        self.shutdown()
+        time.sleep(0.01)
+        self.stop()
 
 
     

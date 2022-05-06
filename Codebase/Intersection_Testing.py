@@ -27,7 +27,7 @@ PWM_FREQ = 1000
 
 # direction is a list that stores every direction the robot has traveled in
 # the robot always assumes it travels north first and then appends the next direction
-Direction = "North"
+Direction = ["North"]
 # Map is a dictionary where the key is the tuple of longitude and latitude
 # The value is a list of available paths and a list of whether they have been explored
 Map = {}
@@ -86,6 +86,7 @@ def drive(motors, sensors):
     time.sleep(0.5)
     if(exit_condition == 1):
         print("Intersection detected")
+        motors.kick("f")
         motors.movedist(0.125,0.5)
     motors.stop()
     time.sleep(0.25)
@@ -103,35 +104,35 @@ def spin(motors, sensors, turn_magnitude):
     motors.stop()
     time.sleep(0.25)
 
-    #update heading by converting direction to integer and using modulus
-    numeric_heading = 0
-    if Direction == "North":
-        numeric_heading = 0
-    elif Direction == "West":
-        numeric_heading = 1
-    elif Direction == "South":
-        numeric_heading = 2
-    elif Direction == "East":
-        numeric_heading = 3
+    # #update heading by converting direction to integer and using modulus
+    # numeric_heading = 0
+    # if Direction == "North":
+    #     numeric_heading = 0
+    # elif Direction == "West":
+    #     numeric_heading = 1
+    # elif Direction == "South":
+    #     numeric_heading = 2
+    # elif Direction == "East":
+    #     numeric_heading = 3
 
-    #shift heading numerically
-    numeric_heading = ((numeric_heading+4+turn_magnitude)%4)
+    # #shift heading numerically
+    # numeric_heading = ((numeric_heading+4+turn_magnitude)%4)
 
-    #update global direction
-    if numeric_heading == 0:
-        Direction = "North"
-    elif numeric_heading == 1:
-        Direction = "West"
-    elif numeric_heading == 2:
-        Direction = "South"
-    elif numeric_heading == 3:
-        Direction = "East"
+    # #update global direction
+    # if numeric_heading == 0:
+    #     Direction = "North"
+    # elif numeric_heading == 1:
+    #     Direction = "West"
+    # elif numeric_heading == 2:
+    #     Direction = "South"
+    # elif numeric_heading == 3:
+    #     Direction = "East"
 
     return
 
 def check(motors, sensors) -> list:
 
-    startingDirection = Direction
+    #startingDirection = Direction
 
     # streets will take the form North, West, South, East
     streets = [False, False, False, False]
@@ -146,18 +147,18 @@ def check(motors, sensors) -> list:
         time.sleep(0.25)
         spin(motors,sensors,1)
 
-    #perform street rotation based on starting position
-    numRotations = 0
-    if startingDirection == "North":
-        numRotations = 0
-    elif startingDirection == "West":
-        numRotations = 1
-    elif startingDirection == "South":
-        numRotations = 2
-    elif startingDirection == "East":
-        numRotations = 3
+    # #perform street rotation based on starting position
+    # numRotations = 0
+    # if startingDirection == "North":
+    #     numRotations = 0
+    # elif startingDirection == "West":
+    #     numRotations = 1
+    # elif startingDirection == "South":
+    #     numRotations = 2
+    # elif startingDirection == "East":
+    #     numRotations = 3
 
-    streets = streets[numRotations:]+streets[:numRotations]
+    # streets = streets[numRotations:]+streets[:numRotations]
 
     return(streets)
 
@@ -166,16 +167,16 @@ def centerOnLine():
     while state == 1 or state == 3 or state == 4 or state == 6:
         
         if state == 1: #Drifted far left
-            motors.angle(10,'r')
+            motors.angle(2,'r')
 
         elif state == 3: #Drifted Left
-            motors.angle(5,'r')
+            motors.angle(2,'r')
 
         elif state == 4: #Drfted far right
-            motors.angle(10,'l')
+            motors.angle(2,'l')
 
         elif state == 6: #Drifted Right
-            motors.angle(5,'l')
+            motors.angle(2,'l')
         
         state = sensors.read()
 
@@ -201,6 +202,7 @@ if __name__ == '__main__':
 
         
         #Test drive ending with check
+        Direction = "North"
         turnList = [1, 3, 3, 3, 0]
         for turn in turnList:
             print("driving")
