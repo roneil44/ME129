@@ -45,25 +45,25 @@ def drive(motors, sensors):
         state = sensors.read()
 
         if state == 0:
-            exit_condition = 0
+            raise Exception("LOST")
 
         elif state == 1: #Drifted far left
-            motors.setvel(0.1, 50, 0.01)
-            edge = 'l'
-
-
-        elif state == 2: #Bot Centered
-            motors.setvel(0.3, 0, 0.01)
-            edge = 'c'
-
-
-        elif state == 3: #Drifted Left
             motors.setvel(0.1, 25, 0.01)
             edge = 'l'
 
 
+        elif state == 2: #Bot Centered
+            motors.setvel(0.2, 0, 0.01)
+            edge = 'c'
+
+
+        elif state == 3: #Drifted Left
+            motors.setvel(0.2, 10, 0.01)
+            edge = 'l'
+
+
         elif state == 4: #Drfted far right
-            motors.setvel(0.1, -50, 0.01)
+            motors.setvel(0.2, -25, 0.01)
             edge = 'r'
 
 
@@ -72,7 +72,7 @@ def drive(motors, sensors):
 
 
         elif state == 6: #Drifted Right
-            motors.setvel(0.1, -25, 0.01)
+            motors.setvel(0.2, -10, 0.01)
             edge = 'r'
 
         #intersection found
@@ -86,7 +86,7 @@ def drive(motors, sensors):
     time.sleep(0.5)
     if(exit_condition == 1):
         print("Intersection detected")
-        motors.movedist(0.125,0.5)
+        motors.movedist(0.105,0.5)
     motors.stop()
     time.sleep(0.25)
     return(exit_condition)
@@ -95,11 +95,11 @@ def spin(motors, sensors, turn_magnitude):
     time.sleep(0.25)
     turn_magnitude = turn_magnitude % 4
     if(turn_magnitude == 3) or (turn_magnitude == -1):
-        motors.angle(115, "r") #doesn't quite turn 90 degrees when asked so overcompensated
+        motors.angle(87, "r") #doesn't quite turn 90 degrees when asked so overcompensated
     elif(turn_magnitude == 1) or (turn_magnitude == -3):
-        motors.angle(115, "l")
+        motors.angle(87, "l")
     elif(turn_magnitude == 2) or (turn_magnitude == -2):
-        motors.angle(230, "r")
+        motors.angle(174, "r")
     motors.stop()
     time.sleep(0.25)
     return
@@ -107,7 +107,7 @@ def spin(motors, sensors, turn_magnitude):
 #Returns array of existence of streets
 #streets[0] is the street to the front of the robot
 #streets[1] is the street to the left of the robot, etc. in counterclockwise order
-def check(motors, sensors) -> list: 
+def check(motors, sensors): 
     # streets will take the form North, West, South, East
     streets = [False, False, False, False]
     # for i in range(3):
@@ -135,11 +135,11 @@ def check(motors, sensors) -> list:
             streets[0] = True
         elif Direction[-1] == "South":
             streets[2] = True
-        elif Direction[2] == "West":
+        elif Direction[-1] == "West":
             streets[1] = True
         elif Direction[-1] == "East":
             streets[3] = True
-
+    
     # Turn to the left and detect if there is a line there
     spin(motors, sensors, 1)
     state = sensors.read()
@@ -149,7 +149,7 @@ def check(motors, sensors) -> list:
             streets[1] = True
         elif Direction[-1] == "South":
             streets[3] = True
-        elif Direction[2] == "West":
+        elif Direction[-1] == "West":
             streets[2] = True
         elif Direction[-1] == "East":
             streets[0] = True
@@ -169,7 +169,7 @@ def check(motors, sensors) -> list:
             streets[0] = True
         elif Direction[-1] == "East":
             streets[2] = True
-
+    
     # Reset bot to center
     spin(motors, sensors, 1)
     state = sensors.read()
@@ -186,14 +186,21 @@ def check(motors, sensors) -> list:
 
 def choose_unexplored_direction(coords):
     #get potential paths
+    temp = []
     temp = get_map(coords)
+    print("here")
     available_paths = temp[0]
     explored_paths = temp[1]
+
+    print(available_paths)
+    print(explored_paths)
+
     # treat unavailable paths as explored
     for a in range(4):
         if available_paths[a] == False:
-            explored_paths[a] == True
+            explored_paths[a] = True
     
+    print(explored_paths)
     
     # create a list that stores which paths are unexplored
     unexplored = []
@@ -229,6 +236,7 @@ def choose_unexplored_direction(coords):
 
     # Find difference between current direction and desired direction
     change = next_dir - current
+    print(next_dir)
     spin(motors, sensors, change)
 
     # Append next direction to directions list
@@ -263,18 +271,16 @@ def int_to_direction(dir: int):
     elif dir == 2:
         return "South"
     elif dir == 3:
-        return "West"
+        return "East"
     else:
-        raise Exception("Invaalid new direction")
+        raise Exception("Invalid new direction")
 
 def get_map(coords):
     # This function checks to see if the bot has been to this location
     # if it hasn't been it calls check and adds the current intersection to the map
     # Also generates a list of whether each path has been traveled in the order
     # North, West, South, East
-    
     explored_paths = [False, False, False, False]
-
     # Add path traveled to get to the instersection as true
     if Direction[-1] == "North":
         explored_paths[2] = True
@@ -285,10 +291,28 @@ def get_map(coords):
     elif Direction[-1] == "East":
         explored_paths[1] = True
 
-    if coords in Map == True:
+    print(coords)
+    print(Map)
+    
+    
+    if coords in Map:
+        print("known intersection")
+        temp = Map[coords]
+        explored_paths = temp[1]
+        if Direction[-1] == "North":
+            explored_paths[2] = True
+        elif Direction[-1] == "South":
+            explored_paths[0] = True
+        elif Direction[-1] == "West":
+            explored_paths[3] = True
+        elif Direction[-1] == "East":
+            explored_paths[1] = True
         return Map[coords]
+        
     else:
+        print("unknown intersection")
         available_paths = check(motors, sensors)
+        print("Here")
         Map[coords] = [available_paths, explored_paths]
         return Map[coords]
 
@@ -333,16 +357,16 @@ def centerOnLine():
     while state == 1 or state == 3 or state == 4 or state == 6:
         
         if state == 1: #Drifted far left
-            motors.setspin(0.8,'r',0.01)
+            motors.setspin(0.5,'r',0.01)
 
         elif state == 3: #Drifted Left
-            motors.setspin(0.6,'r',0.01)
+            motors.setspin(0.5,'r',0.01)
 
         elif state == 4: #Drfted far right
-            motors.setspin(0.8,'l',0.01)
+            motors.setspin(0.5,'l',0.01)
 
         elif state == 6: #Drifted Right
-            motors.setspin(0.6,'l',0.01)
+            motors.setspin(0.5,'l',0.01)
         
         state = sensors.read()
 
@@ -390,7 +414,6 @@ if __name__ == '__main__':
             drive(motors,sensors)
             print(Direction)
             coords = shift(coords)
-            print(Map)
             
 
 
