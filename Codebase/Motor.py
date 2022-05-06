@@ -137,6 +137,7 @@ class Motor:
 
     def angle(self, angle:float, direction:Optional[str]="l", speed:Optional[float]= .7):
         # Takes in aan angle, calculates time to rotate, and then calls setspin function
+        self.kick(direction)
         duration = angle/(510*speed - 160)
         self.setspin(speed, direction, duration)
 
@@ -188,6 +189,18 @@ class Motor:
 
         # Also stop the interface.
         self.io.stop()
+
+    def kick(self, direction:Optional[str] = "f"):
+        if direction == "f":
+            self.move(1,1,0)
+        elif direction == "b":
+            self.move(-1,-1,0)
+        elif direction == "l":
+            self.move(-1,1,0)
+        elif direction == "r":
+            self.move(1,-1,0)
+        time.sleep(0.02)
+        self.shutdown()
 
 
     
