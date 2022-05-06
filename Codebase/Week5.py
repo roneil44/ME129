@@ -86,7 +86,7 @@ def drive(motors, sensors):
     time.sleep(0.5)
     if(exit_condition == 1):
         print("Intersection detected")
-        motors.movedist(0.125,0.5)
+        #motors.movedist(0.125,0.5)
     motors.stop()
     time.sleep(0.25)
     return(exit_condition)
@@ -107,15 +107,10 @@ def spin(motors, sensors, turn_magnitude):
 #Returns array of existence of streets
 #streets[0] is the street to the front of the robot
 #streets[1] is the street to the left of the robot, etc. in counterclockwise order
-def check(motors, sensors) -> list: 
+def check(motors, sensors): 
+    
     # streets will take the form North, West, South, East
     streets = [False, False, False, False]
-    # for i in range(3):
-    #     state = sensors.read()
-    #     if state != 0:
-    #         streets[i] = True
-    #     spin(motors, sensors, 1)
-    #     motors.stop()
     
     # Automatically assign available path behind to true
     if Direction[-1] == "North":
@@ -130,7 +125,7 @@ def check(motors, sensors) -> list:
     # Check direction ahead immediately 
     state = sensors.read()
     if state != 0:
-        centerOnLine()
+        #centerOnLine()
         if Direction[-1] == "North":
             streets[0] = True
         elif Direction[-1] == "South":
@@ -141,10 +136,11 @@ def check(motors, sensors) -> list:
             streets[3] = True
 
     # Turn to the left and detect if there is a line there
-    spin(motors, sensors, 1)
+    #spin(motors, sensors, 1)
+    motors.angle(5, "l")
     state = sensors.read()
-    if state != 0:
-        centerOnLine()
+    if state == 4:
+        #centerOnLine()
         if Direction[-1] == "North":
             streets[1] = True
         elif Direction[-1] == "South":
@@ -155,11 +151,12 @@ def check(motors, sensors) -> list:
             streets[0] = True
 
     # turn 180 back to the right and update streets
-    spin(motors, sensors, 1)
-    centerOnLine()
-    spin(motors, sensors, 1)
+    #spin(motors, sensors, 1)
+    #centerOnLine()
+    #spin(motors, sensors, 1)
+    motors.angle(10, "r")
     state = sensors.read()
-    if state != 0:
+    if state == 1:
         centerOnLine()
         if Direction[-1] == "North":
             streets[3] = True
@@ -171,10 +168,11 @@ def check(motors, sensors) -> list:
             streets[2] = True
 
     # Reset bot to center
-    spin(motors, sensors, 1)
-    state = sensors.read()
-    if state!= 0:
-        centerOnLine
+    #spin(motors, sensors, 1)
+    motors.angle(5,"l")
+    # state = sensors.read()
+    # if state!= 0:
+    #     centerOnLine
 
     motors.stop()
     # motors.setlinear(0.2,"b",1.55)
