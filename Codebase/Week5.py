@@ -137,8 +137,9 @@ def check(motors, sensors):
 
     # Turn to the left and detect if there is a line there
     #spin(motors, sensors, 1)
-    motors.angle(5, "l")
+    motors.angle(15, "l")
     state = sensors.read()
+    print(state)
     if state == 4:
         #centerOnLine()
         if Direction[-1] == "North":
@@ -154,8 +155,9 @@ def check(motors, sensors):
     #spin(motors, sensors, 1)
     #centerOnLine()
     #spin(motors, sensors, 1)
-    motors.angle(10, "r")
+    motors.angle(30, "r")
     state = sensors.read()
+    print(state)
     if state == 1:
         centerOnLine()
         if Direction[-1] == "North":
@@ -169,7 +171,7 @@ def check(motors, sensors):
 
     # Reset bot to center
     #spin(motors, sensors, 1)
-    motors.angle(5,"l")
+    motors.angle(15,"l")
     # state = sensors.read()
     # if state!= 0:
     #     centerOnLine
@@ -192,6 +194,7 @@ def shift(long, lat, heading):
         return (long, lat-1)
     elif heading % 4 == config.EAST:
         return (long+1, lat)
+
 def choose_unexplored_direction(coords):
     #get potential paths
     temp = get_map(coords)
