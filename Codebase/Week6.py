@@ -398,5 +398,8 @@ if __name__ == '__main__':
 
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
-
+    
+    with open("Map.txt","w") as f:
+        for key, value in Map.items():
+            f.write('%s:%s\n' % (key, value))
     motors.shutdown()
