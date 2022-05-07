@@ -402,4 +402,5 @@ if __name__ == '__main__':
     with open("Map.txt","w") as f:
         for key, value in Map.items():
             f.write('%s:%s\n' % (key, value))
+            
     motors.shutdown()
