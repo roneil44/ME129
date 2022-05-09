@@ -9,6 +9,7 @@ from Motor import Motor
 import time
 from Sensor import Sensor
 import config
+import random
 from Intersection import Intersection
 
 # Define the motor pins.
@@ -86,7 +87,7 @@ def drive(motors, sensors):
     time.sleep(0.5)
     if(exit_condition == 1):
         print("Intersection detected")
-        motors.movedist(0.108,0.5)
+        motors.movedist(0.110,0.5)
     motors.stop()
     time.sleep(0.25)
     return(exit_condition)
@@ -139,7 +140,6 @@ def check(motors, sensors):
             streets[1] = True
         elif Direction[-1] == "East":
             streets[3] = True
-    
     # Turn to the left and detect if there is a line there
     spin(motors, sensors, 1)
     state = sensors.read()
@@ -153,7 +153,7 @@ def check(motors, sensors):
             streets[2] = True
         elif Direction[-1] == "East":
             streets[0] = True
-
+    
     # turn 180 back to the right and update streets
     spin(motors, sensors, 1)
     centerOnLine()
@@ -169,7 +169,7 @@ def check(motors, sensors):
             streets[0] = True
         elif Direction[-1] == "East":
             streets[2] = True
-    
+
     # Reset bot to center
     spin(motors, sensors, 1)
     state = sensors.read()
@@ -221,14 +221,13 @@ def choose_unexplored_direction(coords):
             both.append(j)
     
 
-    # If all avaialble paths have been explored move in the first available direction
-    # currently prioritizes North -> West -> South -> East
+    # If all avaialble paths have been explored move in a random available direction
     print(unexplored)
     print(available)
     print(both)
 
     if len(unexplored) == 0:
-        next_dir = available[0]
+        next_dir = random.choice(available)
     else:# If there are unexplored paths choose the first one
         next_dir = both[0]
     # Convert current direction to integer
@@ -345,6 +344,8 @@ def shift(coords):
 
 def centerOnLine():
     state = sensors.read()
+    print("centering")
+    drive_sec = 0
     while state == 1 or state == 3 or state == 4 or state == 6:
         
         if state == 1: #Drifted far left
@@ -362,10 +363,13 @@ def centerOnLine():
         state = sensors.read()
 
         if state == 2:
-            motors.stop()
-            time.sleep(0.25)
+            #make sure its centered
+            motors.setlinear(0.4, 'f', .1)
+            drive_sec += .1
             state = sensors.read()
-
+    motors.stop()
+    time.sleep(0.2)
+    motors.setlinear(0.4, 'b', drive_sec+0.05)
     motors.stop()
     return state
 
@@ -383,7 +387,7 @@ if __name__ == '__main__':
         drive(motors, sensors)
         coords = (0, 0)
         while True:
-            # Drive forard until a corner is detected
+            # Drive forward until a corner is detected
             print("driving from")
             print(coords)
             print(Direction)
