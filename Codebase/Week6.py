@@ -86,7 +86,7 @@ def drive(motors, sensors):
     time.sleep(0.5)
     if(exit_condition == 1):
         print("Intersection detected")
-        motors.movedist(0.105,0.5)
+        motors.movedist(0.108,0.5)
     motors.stop()
     time.sleep(0.25)
     return(exit_condition)
@@ -95,11 +95,11 @@ def spin(motors, sensors, turn_magnitude):
     time.sleep(0.25)
     turn_magnitude = turn_magnitude % 4
     if(turn_magnitude == 3) or (turn_magnitude == -1):
-        motors.angle(87, "r") #doesn't quite turn 90 degrees when asked so overcompensated
+        motors.angle(90, "r") #doesn't quite turn 90 degrees when asked so overcompensated
     elif(turn_magnitude == 1) or (turn_magnitude == -3):
-        motors.angle(87, "l")
+        motors.angle(90, "l")
     elif(turn_magnitude == 2) or (turn_magnitude == -2):
-        motors.angle(174, "r")
+        motors.angle(180, "r")
     motors.stop()
     time.sleep(0.25)
     return
@@ -165,7 +165,7 @@ def check(motors, sensors):
             streets[3] = True
         elif Direction[-1] == "South":
             streets[1] = True
-        elif Direction[2] == "West":
+        elif Direction[-1] == "West":
             streets[0] = True
         elif Direction[-1] == "East":
             streets[2] = True

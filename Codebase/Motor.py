@@ -192,13 +192,13 @@ class Motor:
 
     def kick(self, direction:Optional[str] = "f"):
         if direction == "f":
-            self.move(1,1,0)
+            self.move(1,1,0.01)
         elif direction == "b":
-            self.move(-1,-1,0)
+            self.move(-1,-1, 0.01)
         elif direction == "l":
-            self.move(-1,1,0)
+            self.move(-1,1,0.01)
         elif direction == "r":
-            self.move(1,-1,0)
+            self.move(1,-1,0.01)
         time.sleep(0.01)
         self.stop()
 
