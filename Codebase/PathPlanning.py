@@ -14,46 +14,6 @@ import random
 # The value is a list of available paths and a list of whether they have been explored
 
 
-
-def get_map(coords):
-    # This function checks to see if the bot has been to this location
-    # if it hasn't been it calls check and adds the current intersection to the map
-    # Also generates a list of whether each path has been traveled in the order
-    # North, West, South, East
-
-    print(coords)
-    print(Map) 
-    
-    if coords in Map:
-        print("known intersection")
-        temp = Map[coords]
-        explored_paths = temp[1]
-        if Direction[-1] == "North":
-            explored_paths[2] = True
-        elif Direction[-1] == "South":
-            explored_paths[0] = True
-        elif Direction[-1] == "West":
-            explored_paths[3] = True
-        elif Direction[-1] == "East":
-            explored_paths[1] = True
-        return Map[coords]
-        
-    else:
-        explored_paths = [False, False, False, False]
-        # Add path traveled to get to the instersection as true
-        if Direction[-1] == "North":
-            explored_paths[2] = True
-        elif Direction[-1] == "South":
-            explored_paths[0] = True
-        elif Direction[-1] == "West":
-            explored_paths[3] = True
-        elif Direction[-1] == "East":
-            explored_paths[1] = True
-        print("unknown intersection")
-        available_paths = check(motors, sensors)
-        print("Here")
-        Map[coords] = [available_paths, explored_paths]
-        return Map[coords]
     
 def shift(coords, Direction):
     # Update longitude/latitude value after a step in the given heading.
@@ -133,7 +93,6 @@ if __name__ == '__main__':
         Directions = newDirections
 
         print(Directions)
-        time.sleep(3)
 
         if Destination in Directions.keys():
             searching = FALSE
