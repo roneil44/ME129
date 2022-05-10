@@ -63,23 +63,36 @@ if __name__ == '__main__':
     StartingPosition = (0,0)
     Destination = (0,4)
 
-    #create directions map with starting positon and empty directions hisotry
+    # Directions dictionary holds all possible routes to the destination
+    # Key is where each path currently ends and key value is the list of turns to get there
+    
+    # Directions is initialized with starting position an empty list of turns to get there
     Directions = {StartingPosition: []}
     
+    # variable to indicate route search is still in progress
     searching = TRUE
+
+    # keeps list of coordinates that pathes have already crosses so pathes won't
+    # backtrack or follow other redundant pathes
     coordsTraveled = [StartingPosition]
 
+    #main loop that propogates the dictionary
     while searching == TRUE:
         
-        # iterate through all current paths where keys
-        # are coordinates where the path ends and value is path
+        # iterate through all current paths extending them to new valid coordinates
+        # saves to new dictionary of directions
         newDirections = {}
 
+        # loop starts with every known path
         for currentCoords in Directions.keys():
-
+            
+            # loads map data at this point
             connections = Map.get(currentCoords)[0]
             explored    = Map.get(currentCoords)[1]
             
+            # for loop will try and create a new path by extending in available directions
+            # which are existant, already explored, and the where the new coordinate hasn't
+            # been added to the coordsTraveled list (list of coordinates already on existing pathes)
             for i in range(4):
                 if connections[i] and explored[i]:
                     newCoordinate = shift(currentCoords,i)
@@ -89,13 +102,23 @@ if __name__ == '__main__':
                         newDirections[newCoordinate] = Directions[currentCoords]+[i]
                         coordsTraveled.append(newCoordinate)
 
-        #replace directions dictionary with updated directions one step further        
+        # replace directions dictionary with updated directions one step further        
         Directions = newDirections
 
         print(Directions)
 
+        # checks for all routes being terminated before reaching desintation
+        if len(Directions) == 0:
+            searching = FALSE
+            print("No Route Found")
+
+        # checks for any routes that found the destinations
         if Destination in Directions.keys():
             searching = FALSE
             print("Route Found")
     
-    print(Directions.get(Destination))
+    #prints output path if available
+    if len(Directions) == 0:
+        pass
+    else:
+        print(Directions.get(Destination))
