@@ -1,0 +1,5 @@
+(0, 0):[[True, False, True, True], [True, True, True, False]]
+(0, 1):[[False, False, True, True], [True, True, True, True]]
+(1, 1):[[False, True, False, True], [True, True, True, True]]
+(2, 1):[[True, True, True, True], [True, True, False, False]]
+(2, 2):[[True, True, True, True], [True, False, True, False]]

@@ -46,7 +46,10 @@ def drive(motors, sensors):
         state = sensors.read()
 
         if state == 0:
-            raise Exception("LOST")
+            print('wiggling')
+            find = wiggle()
+            if not find:
+                raise Exception("Actually Lost This Time")
 
         elif state == 1: #Drifted far left
             motors.setvel(0.1, 25, 0.01)
@@ -87,10 +90,34 @@ def drive(motors, sensors):
     time.sleep(0.5)
     if(exit_condition == 1):
         print("Intersection detected")
-        motors.movedist(0.110,0.5)
+        motors.movedist(0.130,0.5)
     motors.stop()
     time.sleep(0.25)
     return(exit_condition)
+
+def wiggle():
+    angle_to_turn = 10
+    for i in range(4):
+        motors.angle(angle_to_turn, 'r')
+        motors.stop()
+        time.sleep(0.25)
+        if(sensors.read() != 0):
+            return True
+        motors.angle(angle_to_turn, 'l')
+        motors.stop()
+        time.sleep(0.25)
+        motors.angle(angle_to_turn, 'l')
+        motors.stop()
+        time.sleep(0.25)
+        if (sensors.read()!= 0):
+            return True
+        motors.angle(angle_to_turn, 'r')
+        motors.stop()
+        time.sleep(0.25)
+        angle_to_turn += 5
+    return False
+
+
 
 def spin(motors, sensors, turn_magnitude):
     time.sleep(0.25)
@@ -100,7 +127,9 @@ def spin(motors, sensors, turn_magnitude):
     elif(turn_magnitude == 1) or (turn_magnitude == -3):
         motors.angle(90, "l")
     elif(turn_magnitude == 2) or (turn_magnitude == -2):
-        motors.angle(180, "r")
+        # motors.angle(180, "r")
+        spin(motors, sensors, 1)
+        spin(motors, sensors, 1)
     motors.stop()
     time.sleep(0.25)
     return
@@ -364,12 +393,12 @@ def centerOnLine():
 
         if state == 2:
             #make sure its centered
-            motors.setlinear(0.4, 'f', .1)
+            motors.setlinear(0.4, 'f', .09)
             drive_sec += .1
             state = sensors.read()
     motors.stop()
-    time.sleep(0.2)
-    motors.setlinear(0.4, 'b', drive_sec+0.05)
+    time.sleep(0.4)
+    motors.setlinear(0.4, 'b', drive_sec+0.04)
     motors.stop()
     return state
 
