@@ -3,6 +3,7 @@
 # Imports
 
 from ast import While
+from curses import can_change_color
 from sre_parse import Pattern
 from turtle import right
 from Motor import Motor
@@ -34,6 +35,8 @@ Direction = ["North"]
 # The value is a list of available paths and a list of whether they have been explored
 Map = {}
 
+complete = False
+
 
 def drive(motors, sensors):
     #returns 0 at end
@@ -47,10 +50,25 @@ def drive(motors, sensors):
         state = sensors.read()
 
         if state == 0:
-            print('wiggling')
             find = wiggle()
             if not find:
-                raise Exception("Actually Lost This Time")
+                #clear map
+                Map.clear()
+                print("map cleared")
+                #spiral until it finds something
+                left = 0.9
+                rigt = 0.2
+                while True:
+                    motors.move(left, rigt, 0.05)
+                    rigt += 0.001
+                    if rigt >= 0.9:
+                        rigt =0.9
+                    state = sensors.read()
+                    if state != 0:
+                        if state == 7:
+                            motors.setvel(0.2, -10, 0.01)
+                        else:
+                            break
 
         elif state == 1: #Drifted far left
             motors.setvel(0.1, 25, 0.01)
@@ -97,7 +115,7 @@ def drive(motors, sensors):
     return(exit_condition)
 
 def wiggle():
-    angle_to_turn = 10
+    angle_to_turn = 15
     for i in range(4):
         motors.angle(angle_to_turn, 'r')
         motors.stop()
@@ -115,7 +133,7 @@ def wiggle():
         motors.angle(angle_to_turn, 'r')
         motors.stop()
         time.sleep(0.25)
-        angle_to_turn += 5
+        angle_to_turn += 10
     return False
 
 
@@ -124,17 +142,18 @@ def spin(motors, sensors, turn_magnitude):
     time.sleep(0.25)
     turn_magnitude = (turn_magnitude + 4) % 4
     if(turn_magnitude == 3) or (turn_magnitude == -1):
-        motors.angle(90, "r") #doesn't quite turn 90 degrees when asked so overcompensated
+        motors.angle(95, "r") #doesn't quite turn 90 degrees when asked so overcompensated
     elif(turn_magnitude == 1) or (turn_magnitude == -3):
-        motors.angle(90, "l")
+        motors.angle(95, "l")
     elif(turn_magnitude == 2) or (turn_magnitude == -2):
-        motors.angle(90, "l")
+        motors.angle(95, "l")
+        motors.stop()
         time.sleep(0.25)
-        motors.angle(90, "l")
+        motors.angle(95, "l")
     motors.stop()
 
-    newDirection = int_to_direction((direct_to_int()+turn_magnitude+4)%4)
-    Direction.append(newDirection)
+    # newDirection = int_to_direction((direct_to_int()+turn_magnitude+4)%4)
+    # Direction.append(newDirection)
 
     time.sleep(0.25)
     return
@@ -222,19 +241,15 @@ def choose_unexplored_direction(coords):
     #get potential paths
     temp = []
     temp = get_map(coords)
-    print("here")
     available_paths = temp[0]
     explored_paths = temp[1]
 
-    print(available_paths)
-    print(explored_paths)
 
     # treat unavailable paths as explored
     for a in range(4):
         if available_paths[a] == False:
             explored_paths[a] = True
     
-    print(explored_paths)
     
     # create a list that stores which paths are unexplored
     unexplored = []
@@ -254,12 +269,6 @@ def choose_unexplored_direction(coords):
         if explored_paths[j] == False and available_paths[j] == True:
             both.append(j)
     
-
-    # If all avaialble paths have been explored move in a random available direction
-    print(unexplored)
-    print(available)
-    print(both)
-
     if len(unexplored) == 0:
         next_dir = random.choice(available)
     else:# If there are unexplored paths choose the first one
@@ -269,21 +278,34 @@ def choose_unexplored_direction(coords):
 
     # Find difference between current direction and desired direction
     change = next_dir - current
-    print(next_dir)
     spin(motors, sensors, change)
 
     #Direction update moved to SPIN function
     
-    # # Append next direction to directions list
-    # update = int_to_direction(next_dir)
-    # print(update)
-    # print("should drive forward now")
-    # Direction.append(update)
+    # Append next direction to directions list
+    update = int_to_direction(next_dir)
+    Direction.append(update)
+
+    check_complete_map()
 
     #Set current path to explored
     explored_paths[next_dir] = True
     Map[coords] = [available_paths, explored_paths]
-    
+
+def check_complete_map():
+    #check map to see if its complete
+    global complete
+    for key in Map:
+        explored = Map.get(key)
+        print(Map)
+        if False in explored[1]:
+            print('1')
+            complete = False
+            return
+        else:
+            print('2')
+            complete = True
+            
 
 def direct_to_int():
     if Direction[-1] == "North":
@@ -316,9 +338,6 @@ def get_map(coords):
     # if it hasn't been it calls check and adds the current intersection to the map
     # Also generates a list of whether each path has been traveled in the order
     # North, West, South, East
-
-    print(coords)
-    print(Map) 
     
     if coords in Map:
         print("known intersection")
@@ -347,7 +366,6 @@ def get_map(coords):
             explored_paths[1] = True
         print("unknown intersection")
         available_paths = check(motors, sensors)
-        print("Here")
         Map[coords] = [available_paths, explored_paths]
         return Map[coords]
       
@@ -380,7 +398,6 @@ def shift(coords):
 
 def centerOnLine():
     state = sensors.read()
-    print("centering")
     drive_sec = 0
     while state == 1 or state == 3 or state == 4 or state == 6:
         
@@ -411,16 +428,22 @@ def centerOnLine():
 
 def drive_route(map, curr_heading, start_point, end_point):
     headings = path.pointToPointDirections(map, start_point, end_point)
+    print(headings)
+    print(curr_heading)
     for next_dir in headings:
-        # Drive until intersection
-        drive(motors, sensors)
+        
         # Find difference between current direction and desired direction, then turn in that direction
         change = next_dir - curr_heading
+        print(change)
         spin(motors, sensors, change)
-
+        
+        # Drive until intersection
+        drive(motors, sensors)
         # Now "next direction" is current direction
         curr_heading = next_dir
-    pass
+    
+    Direction.append(int_to_direction(curr_heading))
+
 
 ## Main Body
 if __name__ == '__main__':
@@ -437,29 +460,32 @@ if __name__ == '__main__':
         unexplored = True
         while unexplored:
             # Drive forward until a corner is detected
-            print("driving from")
-            print(coords)
-            print(Direction)
-            print("\n")
             # Check what available paths there are
-            print("Finding paths")
             choose_unexplored_direction(coords)
+            if complete == True:
+                print("Map is completed")
+                break
+            
             drive(motors,sensors)
             print(Direction)
             coords = shift(coords)
+            
 
-            #check map to see if its complete
-            for key in Map:
-                if False in Map.get(key)[2]:
-                    print(Map.get(key)[2])
-                    unexplored = True
-                else:
-                    unexplored = False
-
+        print("Moving on")
         #after map has been fully explored, go from point a to point b
+        destination = (-2,-2)
+        current_heading = direct_to_int()
+        print("Driving to " + str(destination))
+        drive_route(Map, current_heading, coords, destination)
+        coords = destination
+
+
         destination = (0,0)
         current_heading = direct_to_int()
+        print("Driving to " + str(destination))
         drive_route(Map, current_heading, coords, destination)
+        coords = destination
+
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
     

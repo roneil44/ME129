@@ -95,11 +95,11 @@ def spin(motors, sensors, turn_magnitude):
     time.sleep(0.25)
     turn_magnitude = turn_magnitude % 4
     if(turn_magnitude == 3) or (turn_magnitude == -1):
-        motors.angle(90, "r") #doesn't quite turn 90 degrees when asked so overcompensated
+        motors.angle(95, "r") #doesn't quite turn 90 degrees when asked so overcompensated
     elif(turn_magnitude == 1) or (turn_magnitude == -3):
-        motors.angle(90, "l")
+        motors.angle(95, "l")
     elif(turn_magnitude == 2) or (turn_magnitude == -2):
-        motors.angle(180, "r")
+        motors.angle(190, "r")
     motors.stop()
     time.sleep(0.25)
     return
