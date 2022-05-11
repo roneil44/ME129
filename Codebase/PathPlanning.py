@@ -188,7 +188,7 @@ if __name__ == '__main__':
         (0, 4):[[False, False, True, True], [True, True, True, True]], \
         (1, 4):[[False, True, True, False], [True, True, True, True]]}
 
-    pointToPointDirections(FullMap,(0,4),(1,4))
-    print(nearestUnexploredDirections(IncompleteMap,(1,3)))
+    pointToPointDirections(FullMap,(0,4),(0,0))
+    #print(nearestUnexploredDirections(IncompleteMap,(1,3)))
 
     

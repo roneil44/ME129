@@ -416,7 +416,7 @@ if __name__ == '__main__':
     
     try:
 
-        #Problem 5
+        #Problem 5 - creating map
         drive(motors, sensors)
         coords = (0, 0)
         unexplored = True
