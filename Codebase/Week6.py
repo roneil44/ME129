@@ -403,8 +403,17 @@ def centerOnLine():
     motors.stop()
     return state
 
-def drive_route(Map, start_point, end_point):
+def drive_route(map, curr_heading, start_point, end_point):
+    headings = path.pointToPointDirections(map, start_point, end_point)
+    for next_dir in headings:
+        # Drive until intersection
+        drive(motors, sensors)
+        # Find difference between current direction and desired direction, then turn in that direction
+        change = next_dir - curr_heading
+        spin(motors, sensors, change)
 
+        # Now "next direction" is current direction
+        curr_heading = next_dir
     pass
 
 ## Main Body
@@ -443,7 +452,8 @@ if __name__ == '__main__':
 
         #after map has been fully explored, go from point a to point b
         destination = (0,0)
-        drive_route(Map, coords, destination)
+        current_heading = direct_to_int(Direction[-1])
+        drive_route(Map, current_heading, coords, destination)
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
     
