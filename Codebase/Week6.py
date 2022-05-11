@@ -412,10 +412,11 @@ if __name__ == '__main__':
     
     try:
 
-        #Problem 5
+        #Problem 5 - creating map
         drive(motors, sensors)
         coords = (0, 0)
-        while True:
+        unexplored = True
+        while unexplored:
             # Drive forward until a corner is detected
             print("driving from")
             print(coords)
@@ -427,7 +428,13 @@ if __name__ == '__main__':
             drive(motors,sensors)
             print(Direction)
             coords = shift(coords)
+
+            # check map to see if its complete
+            for positions in Map:
+                if False in positions.get()[1]:
+                    unexplored = False
   
+    
 
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
