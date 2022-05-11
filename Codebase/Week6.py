@@ -122,16 +122,20 @@ def wiggle():
 
 def spin(motors, sensors, turn_magnitude):
     time.sleep(0.25)
-    turn_magnitude = turn_magnitude % 4
+    turn_magnitude = (turn_magnitude + 4) % 4
     if(turn_magnitude == 3) or (turn_magnitude == -1):
         motors.angle(90, "r") #doesn't quite turn 90 degrees when asked so overcompensated
     elif(turn_magnitude == 1) or (turn_magnitude == -3):
         motors.angle(90, "l")
     elif(turn_magnitude == 2) or (turn_magnitude == -2):
-        # motors.angle(180, "r")
-        spin(motors, sensors, 1)
-        spin(motors, sensors, 1)
+        motors.angle(90, "l")
+        time.sleep(0.25)
+        motors.angle(90, "l")
     motors.stop()
+
+    newDirection = int_to_direction((direct_to_int(Direction[-1])+turn_magnitude+4)%4)
+    Direction.append(newDirection)
+
     time.sleep(0.25)
     return
 
@@ -268,11 +272,13 @@ def choose_unexplored_direction(coords):
     print(next_dir)
     spin(motors, sensors, change)
 
-    # Append next direction to directions list
-    update = int_to_direction(next_dir)
-    print(update)
-    print("should drive forward now")
-    Direction.append(update)
+    #Direction update moved to SPIN function
+    
+    # # Append next direction to directions list
+    # update = int_to_direction(next_dir)
+    # print(update)
+    # print("should drive forward now")
+    # Direction.append(update)
 
     #Set current path to explored
     explored_paths[next_dir] = True
