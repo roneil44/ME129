@@ -133,7 +133,7 @@ def spin(motors, sensors, turn_magnitude):
         motors.angle(90, "l")
     motors.stop()
 
-    newDirection = int_to_direction((direct_to_int(Direction[-1])+turn_magnitude+4)%4)
+    newDirection = int_to_direction((direct_to_int()+turn_magnitude+4)%4)
     Direction.append(newDirection)
 
     time.sleep(0.25)
@@ -458,7 +458,7 @@ if __name__ == '__main__':
 
         #after map has been fully explored, go from point a to point b
         destination = (0,0)
-        current_heading = direct_to_int(Direction[-1])
+        current_heading = direct_to_int()
         drive_route(Map, current_heading, coords, destination)
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
