@@ -36,6 +36,7 @@ Direction = ["North"]
 Map = {}
 
 complete = False
+Dead_End_List = []
 
 
 def drive(motors, sensors):
@@ -157,6 +158,21 @@ def spin(motors, sensors, turn_magnitude):
 
     time.sleep(0.25)
     return
+
+def updateDeadEndList():
+    global Dead_End_List
+    
+    Dead_End_List = []
+
+    for point in Map:
+        streets = Map.get(point)[0]
+        sum = 0
+        for i in range(4):
+            if streets[i]:
+                sum+= 1
+        if(sum == 4):
+            Dead_End_List.append(point)
+    
 
 #Returns array of existence of streets
 #streets[0] is the street to the front of the robot
