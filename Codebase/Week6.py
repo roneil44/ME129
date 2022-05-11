@@ -11,6 +11,7 @@ from Sensor import Sensor
 import config
 import random
 from Intersection import Intersection
+import PathPlanning as path
 
 # Define the motor pins.
 MTR1_LEGA = 7
@@ -402,6 +403,9 @@ def centerOnLine():
     motors.stop()
     return state
 
+def drive_route(Map, start_point, end_point):
+
+    pass
 
 ## Main Body
 if __name__ == '__main__':
@@ -415,7 +419,8 @@ if __name__ == '__main__':
         #Problem 5
         drive(motors, sensors)
         coords = (0, 0)
-        while True:
+        unexplored = True
+        while unexplored:
             # Drive forward until a corner is detected
             print("driving from")
             print(coords)
@@ -427,8 +432,18 @@ if __name__ == '__main__':
             drive(motors,sensors)
             print(Direction)
             coords = shift(coords)
-  
 
+            #check map to see if its complete
+            for key in Map:
+                if False in Map.get(key)[2]:
+                    print(Map.get(key)[2])
+                    unexplored = True
+                else:
+                    unexplored = False
+
+        #after map has been fully explored, go from point a to point b
+        destination = (0,0)
+        drive_route(Map, coords, destination)
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
     
