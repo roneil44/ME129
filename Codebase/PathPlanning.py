@@ -29,8 +29,7 @@ def pointToPointDirections(Map, StartingPosition, Destination):
     coordsMapped = [StartingPosition]
 
     #main loop that propogates the dictionary
-    while searching == TRUE:
-        
+    while searching == TRUE:        
         # iterate through all current paths extending them to new valid coordinates
         # saves to new dictionary of directions
         newDirections = {}
@@ -40,8 +39,7 @@ def pointToPointDirections(Map, StartingPosition, Destination):
             
             # loads map data at this point
             connections = Map.get(currentCoords)[0]
-            explored    = Map.get(currentCoords)[1]
-            
+            explored    = Map.get(currentCoords)[1]      
             # for loop will try and create a new path by extending in available directions
             # which are existant, already explored, and the where the new coordinate is on the map
             # but not added to the coordsMapped list (list of coordinates already on existing pathes)
@@ -153,6 +151,20 @@ def shift(coords, Direction):
     else:
         raise Exception("Error in shift")
 
+def getDeadEndList(Map):
+    
+    Dead_End_List = []
+
+    for point in Map:
+        streets = Map.get(point)[0]
+        sum = 0
+        for i in range(4):
+            if streets[i]:
+                sum+= 1
+        if(sum == 1):
+            Dead_End_List.append(point)
+
+    return Dead_End_List
 
 ## Main Body used for testing
 if __name__ == '__main__':
@@ -189,7 +201,24 @@ if __name__ == '__main__':
         (0, 4):[[False, False, True, True], [True, True, True, True]], \
         (1, 4):[[False, True, True, False], [True, True, True, True]]}
 
+    DeadEndMap = {\
+    (0, 0):[[False, True, True, False], [True, True, True, True]],\
+    (-1, 0):[[False, True, True, True], [True, True, True, True]],\
+    (-2, 0):[[False, True, True, True], [True, True, True, True]],\
+    (-3, 0):[[False, False, False, True], [True, True, True, True]],\
+    (-2, -1):[[True, False, True, False], [True, True, True, True]],\
+    (-2, -2):[[True, True, False, True], [True, True, True, True]],\
+    (-3, -2):[[True, False, False, True], [True, True, True, True]],\
+    (-3, -1):[[False, False, True, False], [True, True, True, True]],\
+    (-1, -2):[[True, True, False, False], [True, True, True, True]],\
+    (-1, -1):[[True, False, True, True], [True, True, True, True]],\
+    (0, -1):[[True, True, True, False], [True, True, True, True]],\
+    (0, -2):[[True, False, False, False], [True, True, True, True]]}
+
     pointToPointDirections(FullMap,(0,4),(0,0))
-    #print(nearestUnexploredDirections(IncompleteMap,(1,3)))
+    #print(nearestUnexploredDirections(FullMap,(1,3)))
+
+    #print(getDeadEndList(DeadEndMap))
+    
 
     
