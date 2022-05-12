@@ -67,7 +67,7 @@ def drive(motors, sensors):
                     state = sensors.read()
                     if state != 0:
                         if state == 7:
-                            motors.setvel(0.2, -10, 0.01)
+                            motors.setlinear(0.4, 'f', 0.1)
                         else:
                             break
 
@@ -143,14 +143,14 @@ def spin(motors, sensors, turn_magnitude):
     time.sleep(0.25)
     turn_magnitude = (turn_magnitude + 4) % 4
     if(turn_magnitude == 3) or (turn_magnitude == -1):
-        motors.angle(95, "r") #doesn't quite turn 90 degrees when asked so overcompensated
+        motors.angle(100, "r") #doesn't quite turn 90 degrees when asked so overcompensated
     elif(turn_magnitude == 1) or (turn_magnitude == -3):
-        motors.angle(95, "l")
+        motors.angle(100, "l")
     elif(turn_magnitude == 2) or (turn_magnitude == -2):
-        motors.angle(95, "l")
+        motors.angle(100, "l")
         motors.stop()
         time.sleep(0.25)
-        motors.angle(95, "l")
+        motors.angle(100, "l")
     motors.stop()
 
     # newDirection = int_to_direction((direct_to_int()+turn_magnitude+4)%4)
@@ -286,7 +286,11 @@ def choose_unexplored_direction(coords):
             both.append(j)
     
     if len(unexplored) == 0:
-        next_dir = random.choice(available)
+        closestNodeRoute = path.nearestUnexploredDirections(Map, coords)
+        if len(closestNodeRoute) == 0:
+            next_dir = random.choice(available)
+        else:
+            next_dir = closestNodeRoute[0]
     else:# If there are unexplored paths choose the first one
         next_dir = both[0]
     # Convert current direction to integer
@@ -501,6 +505,9 @@ if __name__ == '__main__':
         print("Driving to " + str(destination))
         drive_route(Map, current_heading, coords, destination)
         coords = destination
+
+        updateDeadEndList()
+        print(Dead_End_List)
 
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))

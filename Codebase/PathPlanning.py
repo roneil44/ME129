@@ -125,6 +125,7 @@ def nearestUnexploredDirections(Map, StartingPosition):
         if len(Directions) == 0:
             searching = FALSE
             print("No Unexplored Street Found")
+            return []
         
     
 def shift(coords, Direction):
