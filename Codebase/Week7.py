@@ -29,9 +29,9 @@ if __name__ == "__main__":
         ULTRA_3 = Ultrasonic("ULTRA_3", ultra_right_echo, ultra_right_trig)
 
         while True:
-            ULTRA_1.trigger()
-            ULTRA_2.trigger()
-            ULTRA_3.trigger()
+            ULTRA_1.send_trigger()
+            ULTRA_2.send_trigger()
+            ULTRA_3.send_trigger()
             #wait 100 ms
             time.sleep(0.1)
 

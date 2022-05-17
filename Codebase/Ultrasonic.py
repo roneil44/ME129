@@ -31,15 +31,17 @@ class Ultrasonic:
         print("GPIO ready...")
     
     #interrupt handler for rising edge
-    def rising(self):
-        self.trise = datetime.datetime.now()
+    def rising(self, gpio, newLevel, tick):
+        self.trise = tick
         return
     
     #interrupt handler for falling edge, records distance in meters(?)
-    def falling(self):
-        self.tfall = datetime.datetime.now()
-        elapsed = self.trise - self.tfall
-        self.dist = 343/2 * elapsed.microseconds/1000000
+    def falling(self, gpio, newLevel, tick):
+        self.tfall = tick
+        delta_tick = self.tfall - self.trise
+        if delta_tick < 0: 
+            delta_tick += (1 << 32)
+        self.dist = 343/2 * delta_tick/1000000
         return
 
     def send_trigger(self):
