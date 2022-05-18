@@ -11,6 +11,8 @@ class Ultrasonic:
         self.echo = echo
         self.trigger = trig
 
+        self.dist = 1
+
         ############################################################
         # Prepare the GPIO connetion (to command the motors).
         print("Setting up the GPIO for Ultrasonic Sensor...")

@@ -1,8 +1,14 @@
 import threading
+
+from numpy import average
 from Motor import Motor
 import time
 from Sensor import Sensor
 from Ultrasonic import Ultrasonic
+from statistics import mean
+from statistics import stdev
+import random
+from typing import Optional
 
 #Define pins
 MTR1_LEGA = 7
@@ -10,6 +16,9 @@ MTR1_LEGB = 8
 
 MTR2_LEGA = 5
 MTR2_LEGB = 6
+
+MAX_PWM_VALUE = 254
+PWM_FREQ = 1000
 
 sen_left_pin = 14
 sen_mid_pin = 15
@@ -22,32 +31,130 @@ ultra_mid_trig = 19
 ultra_right_echo = 21
 ultra_right_trig = 26
 
+
+def stopcontinual():
+    stopflag = True
+def runcontinual():
+    stopflag = False
+    while not stopflag:
+        ULTRA_1.send_trigger()
+        ULTRA_2.send_trigger()
+        ULTRA_3.send_trigger()
+        time.sleep(.2 + .1 * random.random())
+
+def getUltraState(criticalDis:Optional[float] = .2):
+    state = 0
+    
+    if ULTRA_1.dist > criticalDis:
+        state += 1
+    if ULTRA_2.dist > criticalDis:
+        state += 2
+    if ULTRA_3.dist > criticalDis:
+        state += 4
+
+    return state
+
+def herding():
+
+    state = getUltraState()
+
+    if state == 0:
+       motors.move(.5, .5, .02)
+
+    elif state == 1: #Drifted far left
+        motors.move(.5, 0, .02)
+
+    elif state == 2: #Bot Centered
+        motors.setvel(-0.2, 0, 0.01)
+    
+    elif state == 3: #Drifted Left
+        motors.setvel(0.2, 10, 0.01)
+
+    elif state == 4: #Drfted far right
+        motors.setvel(0.2, -25, 0.01)
+
+    elif state == 5: #Split in the tape
+        pass
+
+    elif state == 6: #Drifted Right
+        motors.setvel(0.2, -10, 0.01)
+  
+    #intersection found
+    elif state == 7:  #Thick part of tape
+        motors.move(-.5, -.5, .01)
+        
+
 if __name__ == "__main__":
+    ULTRA_1 = Ultrasonic("ULTRA_1", ultra_left_echo, ultra_left_trig)
+    # Left sensor
+    ULTRA_2 = Ultrasonic("ULTRA_2", ultra_mid_echo, ultra_mid_trig)
+    # Middle Sensor
+    ULTRA_3 = Ultrasonic("ULTRA_3", ultra_right_echo, ultra_right_trig)
+    #Right Sensor
+
+    #Initialize Motors
+    motors = Motor("motors", MTR1_LEGA, MTR1_LEGB, MTR2_LEGA, MTR2_LEGB, MAX_PWM_VALUE, PWM_FREQ)
+
+    #Initialize Second Thread to read sensors
+    thread = threading.Thread(target=runcontinual)
+    thread.start()
+    
     try:
-        ULTRA_1 = Ultrasonic("ULTRA_1", ultra_left_echo, ultra_left_trig)
-        ULTRA_2 = Ultrasonic("ULTRA_2", ultra_mid_echo, ultra_mid_trig)
-        ULTRA_3 = Ultrasonic("ULTRA_3", ultra_right_echo, ultra_right_trig)
 
         while True:
-            ULTRA_1.send_trigger()
-            ULTRA_2.send_trigger()
-            ULTRA_3.send_trigger()
-            #wait 100 ms
-            time.sleep(0.1)
+            # ULTRA_1.send_trigger()
+            # ULTRA_2.send_trigger()
+            # ULTRA_3.send_trigger()
+            # #wait 100 ms
+            # time.sleep(0.1)
 
-            print("There is something " + str(ULTRA_1.dist) + "m away from sensor 1")
-            print("There is something " + str(ULTRA_2.dist) + "m away from sensor 2")
-            print("There is something " + str(ULTRA_3.dist) + "m away from sensor 3")
+            #print("There is something " + str(ULTRA_1.dist) + "m away from sensor 1")
+            #print("There is something " + str(ULTRA_2.dist) + "m away from sensor 2")
+            #print("There is something " + str(ULTRA_3.dist) + "m away from sensor 3")
+
+            # Problem 2
+            # dist = []
+            # for i in range(5):
+            #     ULTRA_2.send_trigger()
+            #     time.sleep(.2)
+            #     dist.append(ULTRA_2.dist)
+
+            # avg = mean(dist)
+            # dev = stdev(dist)
+            # print(dist)
+            # print("Mean distance " + str(avg))
+            # print("Standard Deviation " + str(dev))
+            # exit()
+
+            # ## Problem 5
+            # print(ULTRA_2.dist)
+            # if ULTRA_2.dist >= .2:
+            #     motors.move(.5, .5, .1)
+            # else:
+            #     motors.stop()
+
+            ## Problem 6
+            herding()
+
 
         
     except BaseException as ex:
-        #exit out of the interrupt handlers
-        ULTRA_1.cbfall.cancel()
-        ULTRA_2.cbfall.cancel()
-        ULTRA_3.cbfall.cancel()
-
-        ULTRA_1.cbrise.cancel()
-        ULTRA_2.cbrise.cancel()
-        ULTRA_3.cbrise.cancel()
-        
         print("Ending due to Exception: %s" % repr(ex))
+    
+    # Exit Interupt handlers
+    ULTRA_1.cbfall.cancel()
+    ULTRA_2.cbfall.cancel()
+    ULTRA_3.cbfall.cancel()
+
+    ULTRA_1.cbrise.cancel()
+    ULTRA_2.cbrise.cancel()
+    ULTRA_3.cbrise.cancel()
+    
+    # Shutdown Motors
+    motors.shutdown()
+
+    # Shutdown Second Thread
+    stopcontinual()
+    thread.join()
+        
+    
