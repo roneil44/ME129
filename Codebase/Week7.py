@@ -31,25 +31,29 @@ ultra_mid_trig = 19
 ultra_right_echo = 21
 ultra_right_trig = 26
 
+global stopflag
+
 
 def stopcontinual():
+    global stopflag 
     stopflag = True
 def runcontinual():
+    global stopflag
     stopflag = False
     while not stopflag:
         ULTRA_1.send_trigger()
         ULTRA_2.send_trigger()
         ULTRA_3.send_trigger()
-        time.sleep(.2 + .1 * random.random())
+        time.sleep(.08 + .04 * random.random())
 
 def getUltraState(criticalDis:Optional[float] = .2):
     state = 0
     
-    if ULTRA_1.dist > criticalDis:
+    if ULTRA_1.dist < criticalDis:
         state += 1
-    if ULTRA_2.dist > criticalDis:
+    if ULTRA_2.dist < criticalDis:
         state += 2
-    if ULTRA_3.dist > criticalDis:
+    if ULTRA_3.dist < criticalDis:
         state += 4
 
     return state
@@ -58,30 +62,79 @@ def herding():
 
     state = getUltraState()
 
-    if state == 0:
+    if state == 0: #no sensors detections
        motors.move(.5, .5, .02)
 
-    elif state == 1: #Drifted far left
+    elif state == 1: #left sensor trigger
         motors.move(.5, 0, .02)
 
-    elif state == 2: #Bot Centered
-        motors.setvel(-0.2, 0, 0.01)
+    elif state == 2: #center sensor trigger
+        motors.move(-.5, -.5, .02)
     
-    elif state == 3: #Drifted Left
-        motors.setvel(0.2, 10, 0.01)
+    elif state == 3: #left + center sensor trigger
+        motors.move(.5, -.5, .02)
 
-    elif state == 4: #Drfted far right
-        motors.setvel(0.2, -25, 0.01)
+    elif state == 4: #right sensor trigger
+        motors.move(0, .5, 0.02)
 
-    elif state == 5: #Split in the tape
-        pass
+    elif state == 5: #right and left sensor trigger
+        motors.move(-.5, -.5, .02)
 
-    elif state == 6: #Drifted Right
-        motors.setvel(0.2, -10, 0.01)
+    elif state == 6: #right and center sensor trigger
+        motors.move(-.5, .5, .02)
   
-    #intersection found
-    elif state == 7:  #Thick part of tape
+    elif state == 7:  #all sensors triggered
         motors.move(-.5, -.5, .01)
+        
+def wallFollowing(wall:Optional[str]="l", d_desired:Optional[float]=0.3):
+    if wall == "l":
+        d = ULTRA_1.dist
+    else:
+        d = ULTRA_3.dist
+
+    #exit if it reaches a wall in front
+    if ULTRA_2.dist<0.2:
+        motors.stop()
+        return
+
+    #steering gain
+    k = 1.5
+
+    e = d-d_desired
+    u = -k*e
+
+    #flip correction direction if left wall is used
+    if wall == "l":
+        u = -u
+
+    motors.move(max(0.5,min(0.9,0.7-u)),max(0.5,min(0.9,0.7+u)),0.02)
+
+def advancedWallFollowing(wall:Optional[str]="l", d_desired:Optional[float]=0.3):
+    if wall == "l":
+        d = ULTRA_1.dist
+    else:
+        d = ULTRA_3.dist
+
+    #exit if it reaches a wall in front
+    if ULTRA_2.dist<0.25:
+        motors.stop()
+        if wall == 'l':
+            motors.angle(20,"r")
+        else:
+            motors.angle(20,"l")
+        return
+
+    #steering gain
+    k = 1
+
+    e = d-d_desired
+    u = -k*e
+
+    #flip correction direction if left wall is used
+    if wall == "l":
+        u = -u
+
+    motors.move(max(0.5,min(0.9,0.7-u)),max(0.5,min(0.9,0.7+u)),0.02)
         
 
 if __name__ == "__main__":
@@ -133,8 +186,14 @@ if __name__ == "__main__":
             # else:
             #     motors.stop()
 
-            ## Problem 6
-            herding()
+            # ## Problem 6
+            # herding()
+
+            # ## Problem 7
+            # wallFollowing("r",0.2)
+
+            ## Problem 8
+            advancedWallFollowing("l",0.2)
 
 
         
