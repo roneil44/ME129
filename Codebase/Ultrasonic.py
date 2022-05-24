@@ -1,6 +1,5 @@
 import pigpio
 import sys
-import datetime
 import time
 
 class Ultrasonic:
@@ -37,7 +36,7 @@ class Ultrasonic:
         self.trise = tick
         return
     
-    #interrupt handler for falling edge, records distance in meters(?)
+    #interrupt handler for falling edge, records distance in meters
     def falling(self, gpio, newLevel, tick):
         self.tfall = tick
         delta_tick = self.tfall - self.trise
@@ -50,10 +49,12 @@ class Ultrasonic:
         # Pull one (or all) trigger pins HIGH
         self.io.write(self.trigger, 1)
 
-        # Hold for 10microseconds.
+        # Hold for 10 microseconds.
         time.sleep(0.000010)
 
         # Pull the pins LOW again.
         self.io.write(self.trigger, 0)
         return
 
+    def get_dist(self):
+        return(self.dist)
