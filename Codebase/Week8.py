@@ -1,6 +1,7 @@
 import threading
 
 from numpy import average
+from Codebase.PathPlanning import nearestUnexploredDirections
 from Motor import Motor
 import time
 from Sensor import Sensor
@@ -48,6 +49,8 @@ ultra_mid_echo = 20
 ultra_mid_trig = 19
 ultra_right_echo = 21
 ultra_right_trig = 26
+
+global driving_stopflag
 
 def getUltraState(criticalDis:Optional[float] = .2):
     state = 0
@@ -559,6 +562,46 @@ def drive_route(map, curr_heading, start_point, end_point):
     
     Direction.append(int_to_direction(curr_heading))
 
+def driving_stop():
+    global driving_stopflag
+    driving_stopflag = True
+def driving_loop():
+    global driving_stopflag
+    driving_stopflag = False
+
+    while not driving_stopflag:
+        drive(motors, sensors)
+        coords = (0, 0)
+        unexplored = True
+        if nearestUnexploredDirections(Map, coords) == []:
+            choose_unexplored_direction(coords)
+        else:
+            nearestUnexploredDirections(Map, coords)
+        coords = shift(coords)
+            
+###### User Inputs
+
+def userinput():
+    while True:
+        command = input("Command ? ")
+
+        if (command == 'pause'):
+            print ("pausing")
+            pausedriving = True
+        elif (command == 'explore'):
+            pausedriving = False
+        elif (command == 'goto'):
+            target = input("target ? ")
+            pausedriving = False
+        elif (command == 'print'):
+            print(Map)
+        elif (command == 'exit'):
+            print("quitting")
+            break
+        else:
+            print("Unknown command '%s'" % command)
+
+
 
 ###### Main
 
@@ -581,51 +624,12 @@ if __name__ == "__main__":
     ULTRA_2.start()
     ULTRA_3.start()
 
+    driving_thread = threading.Thread(target=driving_loop)
+    driving_thread.start()
+
     try:
-
-        while True:
-            # ULTRA_1.send_trigger()
-            # ULTRA_2.send_trigger()
-            # ULTRA_3.send_trigger()
-            # #wait 100 ms
-            # time.sleep(0.1)
-
-            #print("There is something " + str(ULTRA_1.get_dist()) + "m away from sensor 1")
-            #print("There is something " + str(ULTRA_2.get_dist()) + "m away from sensor 2")
-            #print("There is something " + str(ULTRA_3.get_dist()) + "m away from sensor 3")
-
-            # Problem 2
-            # dist = []
-            # for i in range(5):
-            #     ULTRA_2.send_trigger()
-            #     time.sleep(.2)
-            #     dist.append(ULTRA_2.get_dist())
-
-            # avg = mean(dist)
-            # dev = stdev(dist)
-            # print(dist)
-            # print("Mean distance " + str(avg))
-            # print("Standard Deviation " + str(dev))
-            # exit()
-
-            # ## Problem 5
-            # print(ULTRA_2.get_dist())
-            # if ULTRA_2.get_dist() >= .2:
-            #     motors.move(.5, .5, .1)
-            # else:
-            #     motors.stop()
-
-            # ## Problem 6
-            # herding()
-
-            # ## Problem 7
-            # wallFollowing("r",0.2)
-
-            ## Problem 8
-            advancedWallFollowing("l",0.2)
-
-
-        
+        userinput()
+            
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
     
