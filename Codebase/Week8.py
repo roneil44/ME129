@@ -156,25 +156,37 @@ def drive(motors, sensors):
         state = sensors.read()
 
         if state == 0:
-            find = wiggle()
-            if not find:
-                #clear map
-                Map.clear()
-                print("map cleared")
-                #spiral until it finds something
-                left = 0.9
-                rigt = 0.2
-                while True:
-                    motors.move(left, rigt, 0.05)
-                    rigt += 0.001
-                    if rigt >= 0.9:
-                        rigt =0.9
-                    state = sensors.read()
-                    if state != 0:
-                        if state == 7:
-                            motors.setlinear(0.4, 'f', 0.1)
-                        else:
-                            break
+            
+            if ULTRA_1.dist<0.03 and ULTRA_3.dist<0.03:
+                #steering gain
+                k = 1.5
+                
+                #error
+                e = ULTRA_1.dist-ULTRA_3.dist
+                u = -k*e
+                
+                motors.move(max(0.5,min(0.9,0.7-u)),max(0.5,min(0.9,0.7+u)),0.02)
+    
+            else:
+                find = wiggle()
+                if not find:
+                    #clear map
+                    Map.clear()
+                    print("map cleared")
+                    #spiral until it finds something
+                    left = 0.9
+                    rigt = 0.2
+                    while True:
+                        motors.move(left, rigt, 0.05)
+                        rigt += 0.001
+                        if rigt >= 0.9:
+                            rigt =0.9
+                        state = sensors.read()
+                        if state != 0:
+                            if state == 7:
+                                motors.setlinear(0.4, 'f', 0.1)
+                            else:
+                                break
 
         elif state == 1: #Drifted far left
             motors.setvel(0.1, 25, 0.01)
