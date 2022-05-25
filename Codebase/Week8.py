@@ -157,12 +157,12 @@ def drive(motors, sensors):
 
         if state == 0:
             
-            if ULTRA_1.dist<0.03 and ULTRA_3.dist<0.03:
+            if ULTRA_1.dist<0.3 and ULTRA_3.dist<0.3:
                 #steering gain
                 k = 1.5
                 
                 #error
-                e = ULTRA_1.dist-ULTRA_3.dist
+                e = ULTRA_3.dist-ULTRA_1.dist
                 u = -k*e
                 
                 motors.move(max(0.5,min(0.9,0.7-u)),max(0.5,min(0.9,0.7+u)),0.02)
