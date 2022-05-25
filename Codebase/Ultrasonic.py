@@ -11,7 +11,7 @@ stopflag = FALSE
 class Ultrasonic(Thread):
     trise = 0
     tfall = 0
-    def __init__(self, io:Thread, name:str, echo:int, trig:int):
+    def __init__(self, name:str, io, echo:int, trig:int):
         #Initialize Second Thread to read sensors
         Thread.__init__(self)
         self.name = name
