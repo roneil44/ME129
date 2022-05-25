@@ -150,6 +150,7 @@ def drive(motors, sensors):
     edge = 'c' #Set edge for sensor updates l, r or c
 
     while(exit_condition == -1):
+        ultra_state = getUltraState()
         #print("here")
         state = sensors.read()
 
@@ -180,7 +181,12 @@ def drive(motors, sensors):
 
 
         elif state == 2: #Bot Centered
-            motors.setvel(0.2, 0, 0.01)
+            if ultra_state == 2 or ultra_state == 3 or ultra_state == 7:
+            #all cases where middle sensor sees something in front
+                motors.angle(180) #spin 180  
+                exit_condition = 2     
+            else:
+                motors.setvel(0.2, 0, 0.01)
             edge = 'c'
 
 
@@ -214,6 +220,8 @@ def drive(motors, sensors):
     if(exit_condition == 1):
         print("Intersection detected")
         motors.movedist(0.130,0.5)
+    if(exit_condition == 2):
+        print("ran into obstacle, turned around")
     motors.stop()
     time.sleep(0.25)
     return(exit_condition)
@@ -549,15 +557,20 @@ def drive_route(map, curr_heading, start_point, end_point):
         
         # Find difference between current direction and desired direction, then turn in that direction
         change = next_dir - curr_heading
-        print(change)
         spin(motors, sensors, change)
         
         # Drive until intersection
-        drive(motors, sensors)
-        # Now "next direction" is current direction
-        curr_heading = next_dir
+        driving = drive(motors, sensors)
+        if driving == 1:
+            #intersection found 
+            # Now "next direction" is current direction
+            curr_heading = next_dir
+            Direction.append(int_to_direction(curr_heading))
+        elif driving == 2:
+            print(" Don't know what to do, turned around because of obstacle ")
+            return
+
     
-    Direction.append(int_to_direction(curr_heading))
 
 
 ###### Main
@@ -584,45 +597,20 @@ if __name__ == "__main__":
     try:
 
         while True:
-            # ULTRA_1.send_trigger()
-            # ULTRA_2.send_trigger()
-            # ULTRA_3.send_trigger()
-            # #wait 100 ms
-            # time.sleep(0.1)
-
-            #print("There is something " + str(ULTRA_1.get_dist()) + "m away from sensor 1")
-            #print("There is something " + str(ULTRA_2.get_dist()) + "m away from sensor 2")
-            #print("There is something " + str(ULTRA_3.get_dist()) + "m away from sensor 3")
-
-            # Problem 2
-            # dist = []
-            # for i in range(5):
-            #     ULTRA_2.send_trigger()
-            #     time.sleep(.2)
-            #     dist.append(ULTRA_2.get_dist())
-
-            # avg = mean(dist)
-            # dev = stdev(dist)
-            # print(dist)
-            # print("Mean distance " + str(avg))
-            # print("Standard Deviation " + str(dev))
-            # exit()
-
-            # ## Problem 5
-            # print(ULTRA_2.get_dist())
-            # if ULTRA_2.get_dist() >= .2:
-            #     motors.move(.5, .5, .1)
-            # else:
-            #     motors.stop()
-
-            # ## Problem 6
-            # herding()
-
-            # ## Problem 7
-            # wallFollowing("r",0.2)
-
-            ## Problem 8
-            advancedWallFollowing("l",0.2)
+            drive(motors, sensors)
+            coords = (0, 0)
+            unexplored = True
+            while unexplored:
+                # Drive forward until a corner is detected
+                # Check what available paths there are
+                choose_unexplored_direction(coords)
+                if complete == True:
+                    print("Map is completed")
+                    break
+                
+                drive(motors,sensors)
+                print(Direction)
+                coords = shift(coords)
 
 
         
