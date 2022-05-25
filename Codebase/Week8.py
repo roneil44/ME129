@@ -563,6 +563,24 @@ def drive_route(map, curr_heading, start_point, end_point):
     
     Direction.append(int_to_direction(curr_heading))
 
+def followroute(headings):
+    curr_heading = Direction[-1]
+
+    for next_dir in headings:
+        
+        # Find difference between current direction and desired direction, then turn in that direction
+        change = next_dir - curr_heading
+        print(change)
+        spin(motors, sensors, change)
+        
+        # Drive until intersection
+        drive(motors, sensors)
+        # Now "next direction" is current direction
+        curr_heading = next_dir
+    
+    Direction.append(int_to_direction(curr_heading))
+
+
 def driving_stop():
     global driving_stopflag
     driving_stopflag = True
