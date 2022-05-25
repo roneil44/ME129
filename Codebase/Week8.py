@@ -162,7 +162,7 @@ def drive(motors, sensors):
                 k = 1.5
                 
                 #error
-                e = ULTRA_1.dist-ULTRA_3.dist
+                e = ULTRA_3.dist-ULTRA_1.dist
                 u = -k*e
                 
                 motors.move(max(0.5,min(0.9,0.7-u)),max(0.5,min(0.9,0.7+u)),0.02)
