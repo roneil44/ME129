@@ -11,10 +11,9 @@ stopflag = FALSE
 class Ultrasonic(Thread):
     trise = 0
     tfall = 0
-    def __init__(self, name:str, echo:int, trig:int):
+    def __init__(self, io, name:str, echo:int, trig:int):
         #Initialize Second Thread to read sensors
         Thread.__init__(self)
-        
         self.name = name
         self.echo = echo
         self.trigger = trig
@@ -27,7 +26,7 @@ class Ultrasonic(Thread):
         print("Setting up the GPIO for Ultrasonic Sensor...")
 
         # Initialize the connection to the pigpio daemon (GPIO interface).
-        self.io = pigpio.pi()
+        self.io = io
         if not self.io.connected:
             print("Unable to connection to pigpio daemon!")
             sys.exit(0)

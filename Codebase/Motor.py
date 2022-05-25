@@ -10,7 +10,7 @@ import time
 
 class Motor:
 
-    def __init__(self, name:str, MTR1_LEGA:int, MTR1_LEGB:int, MTR2_LEGA:int, MTR2_LEGB:int, MAX_PWM_VALUE:float, PWM_FREQ:int):
+    def __init__(self, io, name:str, MTR1_LEGA:int, MTR1_LEGB:int, MTR2_LEGA:int, MTR2_LEGB:int, MAX_PWM_VALUE:float, PWM_FREQ:int):
         self.name = name
         self.LEG1A = MTR1_LEGA
         self.LEG1B = MTR1_LEGB
@@ -22,7 +22,7 @@ class Motor:
         print("Setting up the GPIO...")
 
         # Initialize the connection to the pigpio daemon (GPIO interface).
-        self.io = pigpio.pi()
+        self.io = io
         if not self.io.connected:
             print("Unable to connection to pigpio daemon!")
             sys.exit(0)

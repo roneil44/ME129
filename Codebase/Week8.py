@@ -9,6 +9,7 @@ from statistics import mean
 from statistics import stdev
 import random
 from typing import Optional
+import pigpio
 
 from ast import While
 from curses import can_change_color
@@ -576,18 +577,19 @@ def drive_route(map, curr_heading, start_point, end_point):
 ###### Main
 
 if __name__ == "__main__":
-    ULTRA_1 = Ultrasonic("ULTRA_1", ultra_left_echo, ultra_left_trig)
+    io = pigpio.pi()
+    ULTRA_1 = Ultrasonic("ULTRA_1", io, ultra_left_echo, ultra_left_trig)
     # Left sensor
-    ULTRA_2 = Ultrasonic("ULTRA_2", ultra_mid_echo, ultra_mid_trig)
+    ULTRA_2 = Ultrasonic("ULTRA_2", io, ultra_mid_echo, ultra_mid_trig)
     # Middle Sensor
-    ULTRA_3 = Ultrasonic("ULTRA_3", ultra_right_echo, ultra_right_trig)
+    ULTRA_3 = Ultrasonic("ULTRA_3", io, ultra_right_echo, ultra_right_trig)
     #Right Sensor
 
     #Initialize Motors
-    motors = Motor("motors", MTR1_LEGA, MTR1_LEGB, MTR2_LEGA, MTR2_LEGB, MAX_PWM_VALUE, PWM_FREQ)
+    motors = Motor("motors", io, MTR1_LEGA, MTR1_LEGB, MTR2_LEGA, MTR2_LEGB, MAX_PWM_VALUE, PWM_FREQ)
 
     #Initialize Infared
-    sensors = Sensor("sensors", sen_left_pin, sen_mid_pin, sen_right_pin)
+    sensors = Sensor("sensors", io, sen_left_pin, sen_mid_pin, sen_right_pin)
 
     #Initialize Second Thread to read sensors
     ULTRA_1.start()

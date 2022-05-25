@@ -9,7 +9,7 @@ import time
 
 class Sensor:
 
-    def __init__(self, name:str, sens1:int, sens2:int, sens3:int):
+    def __init__(self, io, name:str, sens1:int, sens2:int, sens3:int):
         self.name = name
         self.sens1 = sens1
         self.sens2 = sens2
@@ -20,7 +20,7 @@ class Sensor:
         print("Setting up the GPIO...")
 
         # Initialize the connection to the pigpio daemon (GPIO interface).
-        self.io = pigpio.pi()
+        self.io = io
         if not self.io.connected:
             print("Unable to connection to pigpio daemon!")
             sys.exit(0)
