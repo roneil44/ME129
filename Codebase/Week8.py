@@ -49,22 +49,6 @@ ultra_mid_trig = 19
 ultra_right_echo = 21
 ultra_right_trig = 26
 
-global stopflag
-
-###### Ultrasonic Drive and Detection functions
-
-def stopcontinual():
-    global stopflag 
-    stopflag = True
-def runcontinual():
-    global stopflag
-    stopflag = False
-    while not stopflag:
-        ULTRA_1.send_trigger()
-        ULTRA_2.send_trigger()
-        ULTRA_3.send_trigger()
-        time.sleep(.08 + .04 * random.random())
-
 def getUltraState(criticalDis:Optional[float] = .2):
     state = 0
     
@@ -593,9 +577,10 @@ if __name__ == "__main__":
     sensors = Sensor("sensors", sen_left_pin, sen_mid_pin, sen_right_pin)
 
     #Initialize Second Thread to read sensors
-    thread = threading.Thread(target=runcontinual)
-    thread.start()
-    
+    ULTRA_1.start()
+    ULTRA_2.start()
+    ULTRA_3.start()
+
     try:
 
         while True:
@@ -657,7 +642,8 @@ if __name__ == "__main__":
     motors.shutdown()
 
     # Shutdown Second Thread
-    stopcontinual()
-    thread.join()
+    ULTRA_1.stopcontinual()
+    ULTRA_2.stopcontinual()
+    ULTRA_3.stopcontinual()
         
     

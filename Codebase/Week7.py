@@ -186,8 +186,8 @@ if __name__ == "__main__":
             # else:
             #     motors.stop()
 
-            # ## Problem 6
-            # herding()
+            ## Problem 6
+            herding()
 
             # ## Problem 7
             # wallFollowing("r",0.2)
