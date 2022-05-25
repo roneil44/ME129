@@ -2,13 +2,13 @@ from pickle import FALSE
 import pigpio
 import sys
 import time
-import threading
+from threading import Thread
 import random
 
 global stopflag
 stopflag = FALSE
 
-class Ultrasonic:
+class Ultrasonic(Thread):
     trise = 0
     tfall = 0
     def __init__(self, name:str, echo:int, trig:int):
@@ -19,8 +19,7 @@ class Ultrasonic:
         self.dist = 1
 
         #Initialize Second Thread to read sensors
-        thread = threading.Thread(target=self.runcontinual)
-        thread.start()
+        Thread.__init__(self)
 
         ############################################################
         # Prepare the GPIO connetion (to command the motors).
@@ -73,7 +72,7 @@ class Ultrasonic:
     def stopcontinual(self):
         global stopflag 
         stopflag = True
-    def runcontinual(self):
+    def run(self):
         global stopflag
         stopflag = False
         while not stopflag:
