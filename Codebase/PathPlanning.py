@@ -88,7 +88,6 @@ def pointToNearUnexplored(Map, StartingPosition, Destination):
 
     return pointToPointDirections(Map, StartingPosition,closestIntersection)
 
-
 def nearestUnexploredDirections(Map, StartingPosition):
     # Directions dictionary holds all possible routes to the destination
     # Key is where each path currently ends and key value is the list of turns to get there
@@ -239,6 +238,3 @@ if __name__ == '__main__':
     #pointToPointDirections(FullMap, (1,1), (2,3))
 
     #pointToNearUnexplored(FullMap, (1,1), (3,3))
-    
-
-    
