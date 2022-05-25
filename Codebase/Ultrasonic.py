@@ -68,11 +68,11 @@ class Ultrasonic(Thread):
 
     def get_dist(self):
         return(self.dist)
-        global stopflag
 
     def stopcontinual(self):
         global stopflag 
         stopflag = True
+
     def run(self):
         global stopflag
         stopflag = False
