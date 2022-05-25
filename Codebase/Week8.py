@@ -575,6 +575,9 @@ def drive_route(map, curr_heading, start_point, end_point):
     
     Direction.append(int_to_direction(curr_heading))
 
+
+###### Main
+
 if __name__ == "__main__":
     ULTRA_1 = Ultrasonic("ULTRA_1", ultra_left_echo, ultra_left_trig)
     # Left sensor

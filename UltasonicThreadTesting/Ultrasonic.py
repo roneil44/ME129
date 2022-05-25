@@ -12,14 +12,15 @@ class Ultrasonic(Thread):
     trise = 0
     tfall = 0
     def __init__(self, name:str, echo:int, trig:int):
+        #Initialize Second Thread to read sensors
+        Thread.__init__(self)
+        
         self.name = name
         self.echo = echo
         self.trigger = trig
 
         self.dist = 1
 
-        #Initialize Second Thread to read sensors
-        Thread.__init__(self)
 
         ############################################################
         # Prepare the GPIO connetion (to command the motors).
