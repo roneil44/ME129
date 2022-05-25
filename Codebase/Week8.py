@@ -157,7 +157,7 @@ def drive(motors, sensors):
 
         if state == 0:
             
-            if ULTRA_1.dist<0.03 and ULTRA_3.dist<0.03:
+            if ULTRA_1.dist<0.3 and ULTRA_3.dist<0.3:
                 #steering gain
                 k = 1.5
                 
@@ -223,6 +223,7 @@ def drive(motors, sensors):
 
         #intersection found
         elif state == 7:  #Thick part of tape
+            print("tape real thick")
             exit_condition = 1
 
         #print(edge)
