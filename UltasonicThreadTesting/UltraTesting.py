@@ -125,10 +125,13 @@ def advancedWallFollowing(wall:Optional[str]="l", d_desired:Optional[float]=0.3)
 
 if __name__ == "__main__":
     ULTRA_1 = Ultrasonic("ULTRA_1", ultra_left_echo, ultra_left_trig)
+    ULTRA_1.start()
     # Left sensor
     ULTRA_2 = Ultrasonic("ULTRA_2", ultra_mid_echo, ultra_mid_trig)
+    ULTRA_2.start()
     # Middle Sensor
     ULTRA_3 = Ultrasonic("ULTRA_3", ultra_right_echo, ultra_right_trig)
+    ULTRA_3.start()
     #Right Sensor
 
     #Initialize Motors
@@ -141,7 +144,8 @@ if __name__ == "__main__":
            print(ULTRA_1.dist)
            print(ULTRA_2.dist)
            print(ULTRA_3.dist)
-           time.sleep(0.1)
+           print(" ")
+           time.sleep(0.25)
 
 
         
