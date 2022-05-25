@@ -505,6 +505,25 @@ def drive_route(map, curr_heading, start_point, end_point):
             return
 
     
+def followPath(headings):
+    curr_heading = Direction[-1]
+    for next_dir in headings:
+        
+        # Find difference between current direction and desired direction, then turn in that direction
+        change = next_dir - curr_heading
+        spin(motors, sensors, change)
+        
+        # Drive until intersection
+        driving = drive(motors, sensors)
+        if driving == 1:
+            #intersection found 
+            # Now "next direction" is current direction
+            curr_heading = next_dir
+            Direction.append(int_to_direction(curr_heading))
+        elif driving == 2:
+            print(" Don't know what to do, turned around because of obstacle ")
+            return
+
 
 
 ###### Main
