@@ -6,7 +6,6 @@ from ast import While
 from pickle import FALSE, TRUE
 from turtle import right
 import time
-import config
 import random
 
 
@@ -73,6 +72,22 @@ def pointToPointDirections(Map, StartingPosition, Destination):
         print(Directions.get(Destination))
         return(Directions.get(Destination))
     
+def pointToNearUnexplored(Map, StartingPosition, Destination):
+    
+    if Destination in Map:
+        return pointToPointDirections(Map, StartingPosition, Destination)
+
+    closestInterstion = (0,0)
+    currentDistance = abs(Destination[0])+abs(Destination[1])
+    for point in Map:
+        newDistance = abs(Destination[0]-point[0])+abs(Destination[1]-point[1])
+        
+        if newDistance < currentDistance:
+            closestIntersection = point
+            currentDistance = newDistance
+
+    return pointToPointDirections(Map, StartingPosition,closestIntersection)
+
 def nearestUnexploredDirections(Map, StartingPosition):
     # Directions dictionary holds all possible routes to the destination
     # Key is where each path currently ends and key value is the list of turns to get there
@@ -125,7 +140,6 @@ def nearestUnexploredDirections(Map, StartingPosition):
             print("No Unexplored Street Found")
             return []
         
-    
 def shift(coords, Direction):
     # Update longitude/latitude value after a step in the given heading.
     if Direction == 0:
@@ -215,10 +229,12 @@ if __name__ == '__main__':
     (0, -1):[[True, True, True, False], [True, True, True, True]],\
     (0, -2):[[True, False, False, False], [True, True, True, True]]}
 
-    pointToPointDirections(FullMap,(0,4),(0,0))
+    print(pointToPointDirections(FullMap,(0,4),(-1,-1)))
+    
     #print(nearestUnexploredDirections(FullMap,(1,3)))
 
     #print(getDeadEndList(DeadEndMap))
     
+    #pointToPointDirections(FullMap, (1,1), (2,3))
 
-    
+    #pointToNearUnexplored(FullMap, (1,1), (3,3))

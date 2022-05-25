@@ -10,6 +10,7 @@ from statistics import mean
 from statistics import stdev
 import random
 from typing import Optional
+import pigpio
 
 from ast import While
 from curses import can_change_color
@@ -575,31 +576,34 @@ def driving_loop():
         unexplored = True
         if nearestUnexploredDirections(Map, coords) == []:
             choose_unexplored_direction(coords)
+            coords = shift(coords)
         else:
             nearestUnexploredDirections(Map, coords)
-        coords = shift(coords)
+            
+        
             
 ###### User Inputs
 
 def userinput():
     while True:
         command = input("Command ? ")
-
+        driving_state = 0
         if (command == 'pause'):
             print ("pausing")
-            pausedriving = True
+            driving_state = 1
         elif (command == 'explore'):
-            pausedriving = False
+            driving_state = 0
         elif (command == 'goto'):
             target = input("target ? ")
-            pausedriving = False
+            driving_state = 2
         elif (command == 'print'):
             print(Map)
         elif (command == 'exit'):
             print("quitting")
-            break
+            driving_state = 3
         else:
             print("Unknown command '%s'" % command)
+        return(driving_state)
 
 
 
@@ -628,8 +632,10 @@ if __name__ == "__main__":
     driving_thread.start()
 
     try:
-        userinput()
-            
+        state = userinput()
+        if state == 3:
+            exit()
+        
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
     
