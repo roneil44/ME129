@@ -53,6 +53,9 @@ ultra_right_trig = 26
 
 global driving_stopflag
 
+global driving_state
+global next_location
+
 def getUltraState(criticalDis:Optional[float] = .2):
     state = 0
     
@@ -586,7 +589,15 @@ def driving_stop():
     driving_stopflag = True
 def driving_loop():
     global driving_stopflag
+    global next_location
+
     driving_stopflag = False
+
+    if driving_state == 1:
+        time.sleep(5000)
+    elif driving_state == 2:
+        drive_route(Map, Direction[-1], coords, next_location)
+        coords = next_location
 
     while not driving_stopflag:
         drive(motors, sensors)
@@ -596,13 +607,17 @@ def driving_loop():
             choose_unexplored_direction(coords)
             coords = shift(coords)
         else:
-            nearestUnexploredDirections(Map, coords)
+            route, final_coord = nearestUnexploredDirections(Map, coords)
+            followroute(route)
+            coords = final_coord
             
         
             
 ###### User Inputs
 
 def userinput():
+    global driving_state
+    global next_location
     while True:
         command = input("Command ? ")
         driving_state = 0
@@ -613,15 +628,19 @@ def userinput():
             driving_state = 0
         elif (command == 'goto'):
             target = input("target ? ")
+            temp = target.split()
+            long = temp[0]
+            lat = temp[1]
             driving_state = 2
+            next_location = (long,lat)
         elif (command == 'print'):
             print(Map)
         elif (command == 'exit'):
             print("quitting")
             driving_state = 3
+            break
         else:
             print("Unknown command '%s'" % command)
-        return(driving_state)
 
 
 
@@ -650,8 +669,8 @@ if __name__ == "__main__":
     driving_thread.start()
 
     try:
-        state = userinput()
-        if state == 3:
+        userinput()
+        if driving_state == 3:
             exit()
         
     except BaseException as ex:

@@ -117,7 +117,7 @@ def nearestUnexploredDirections(Map, StartingPosition):
             explored    = Map.get(currentCoords)[1]
 
             if False in explored:
-                return(Directions.get(currentCoords))
+                return(Directions.get(currentCoords), currentCoords)
             
             # for loop will try and create a new path by extending in available directions
             # which are existant, already explored, and the where the new coordinate is on the map
