@@ -151,7 +151,7 @@ def drive(motors, sensors):
     edge = 'c' #Set edge for sensor updates l, r or c
 
     while(exit_condition == -1):
-        ultra_state = getUltraState()
+        ultra_state = getUltraState(0.1)
         #print("here")
         state = sensors.read()
 
@@ -196,7 +196,11 @@ def drive(motors, sensors):
         elif state == 2: #Bot Centered
             if ultra_state == 2 or ultra_state == 3 or ultra_state == 7:
             #all cases where middle sensor sees something in front
-                motors.angle(180) #spin 180  
+                motors.angle(200) #spin 180 
+                curr_direct = direct_to_int() 
+                curr_direct = (curr_direct - 2)%4
+                curr_direct = int_to_direction(curr_direct)
+                Direction.append(curr_direct)
                 exit_condition = 2     
             else:
                 motors.setvel(0.2, 0, 0.01)
@@ -610,7 +614,7 @@ if __name__ == "__main__":
     ULTRA_3.start()
 
     try:
-
+        exit = 0 
         while True:
             drive(motors, sensors)
             coords = (0, 0)
@@ -618,12 +622,15 @@ if __name__ == "__main__":
             while unexplored:
                 # Drive forward until a corner is detected
                 # Check what available paths there are
-                choose_unexplored_direction(coords)
+                if exit != 2:
+                    choose_unexplored_direction(coords)
+                    coords = shift(coords)
+
                 if complete == True:
                     print("Map is completed")
                     break
                 
-                drive(motors,sensors)
+                exit = drive(motors,sensors)                    
                 print(Direction)
                 coords = shift(coords)
 
