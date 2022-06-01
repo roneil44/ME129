@@ -418,13 +418,16 @@ def getNewDirection():
 
     if state == 0: #exploring
         newDirections = nearestUnexploredDirections(Map,coords)
-        if newDirections != []:            
+        if newDirections == []:            
             for i in range(4):
                 if Map[coords][0][i] and not Map[coords][1][i]:
                     return i
-            
-        else:
-            return newDirections[0]
+
+    elif state == 2: #moving towards target
+        newDirections = pointToNearUnexplored(Map, coords,destination)
+
+    if newDirections != []:
+            return newDirections[-1]
 
     # if no valid new direction is loaded, bot will turn around
     return (Direction[-1]+2)%4
