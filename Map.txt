@@ -1,2 +1,0 @@
-(0, 0):[[True, False, True, True], [True, True, True, False]]
-(0, 1):[[True, False, True, True], [True, True, True, False]]

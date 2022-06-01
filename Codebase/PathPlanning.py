@@ -17,6 +17,9 @@ def pointToPointDirections(Map, StartingPosition, Destination):
     # Directions dictionary holds all possible routes to the destination
     # Key is where each path currently ends and key value is the list of turns to get there
     
+    if len(Map) == 0:
+        return []
+
     # Directions is initialized with starting position and an empty list of turns to get there
     Directions = {StartingPosition: []}
     
@@ -74,6 +77,9 @@ def pointToPointDirections(Map, StartingPosition, Destination):
     
 def pointToNearUnexplored(Map, StartingPosition, Destination):
     
+    if len(Map) == 0:
+        return []
+
     if Destination in Map:
         return pointToPointDirections(Map, StartingPosition, Destination)
 
@@ -92,6 +98,9 @@ def nearestUnexploredDirections(Map, StartingPosition):
     # Directions dictionary holds all possible routes to the destination
     # Key is where each path currently ends and key value is the list of turns to get there
     
+    if len(Map) == 0:
+        return []
+
     # Directions is initialized with starting position and an empty list of turns to get there
     Directions = {StartingPosition: []}
     
@@ -117,7 +126,7 @@ def nearestUnexploredDirections(Map, StartingPosition):
             explored    = Map.get(currentCoords)[1]
 
             if False in explored:
-                return(Directions.get(currentCoords), currentCoords)
+                return(Directions.get(currentCoords))
             
             # for loop will try and create a new path by extending in available directions
             # which are existant, already explored, and the where the new coordinate is on the map

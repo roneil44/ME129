@@ -1,7 +1,7 @@
 import threading
 
 from numpy import average
-from Codebase.PathPlanning import nearestUnexploredDirections, pointToNearUnexplored
+from PathPlanning import nearestUnexploredDirections, pointToNearUnexplored
 from Motor import Motor
 import time
 from Sensor import Sensor
@@ -294,9 +294,11 @@ def check(motors, sensors):
 def check_complete_map():
     #check map to see if its complete
     global complete
+    if len(Map) == 0:
+        complete = False
+
     for key in Map:
         explored = Map.get(key)
-        print(Map)
         if False in explored[1]:
             print('1')
             complete = False
@@ -352,10 +354,10 @@ def checkGoalComplete():
             print("Map complete")
             return True
 
-        # check condition for unexplored region of map blocked
-        elif nearestUnexploredDirections(Map, coords) == []:
-            print("Map complete in current state")
-            return True
+        # # check condition for unexplored region of map blocked
+        # elif nearestUnexploredDirections(Map, coords) == []:
+        #     print("Map complete in current state")
+        #     return True
         
         else:
             print("Still Exploring")
@@ -421,15 +423,19 @@ def getNewDirection():
         if newDirections == []:            
             for i in range(4):
                 if Map[coords][0][i] and not Map[coords][1][i]:
+                    print("returning 1")
                     return i
 
     elif state == 2: #moving towards target
         newDirections = pointToNearUnexplored(Map, coords,destination)
 
     if newDirections != []:
-            return newDirections[-1]
+        print("New Directions: ")
+        print(newDirections)
+        return newDirections[-1]
 
     # if no valid new direction is loaded, bot will turn around
+    print("returning 3")
     return (Direction[-1]+2)%4
 
 def turnToDirection(newDirection):
@@ -437,24 +443,30 @@ def turnToDirection(newDirection):
     global motors
     global sensors
 
-    turnCount = (4+newDirection-Direction[-1])%4
+    print(newDirection)
+    print(Direction[-1])
+
+    turnCount = 4+newDirection-Direction[-1]
+    turnCount = turnCount%4
     spin(motors, sensors, turnCount)
     Direction.append(newDirection)
 
 def postDriveProcess(driveResults):
+    global coords
+    global Direction
 
     #shift coordinates due to successful drive
     if driveResults == 1:
         lat = coords[0]
         lon = coords[1]
         if Direction[-1] == 0:
-            coords  = [lat, lon+1]   
+            coords  = (lat, lon+1)   
         if Direction[-1] == 1:
-            coords  = [lat-1, lon]
+            coords  = (lat-1, lon)
         if Direction[-1] == 2:
-            coords  = [lat, lon-1]
+            coords  = (lat, lon-1)
         if Direction[-1] == 3:
-            coords  = [lat+1, lon]
+            coords  = (lat+1, lon)
 
     #update blockage and flip direction
     if driveResults == 2:
@@ -478,18 +490,28 @@ def driving_loop():
 
     while not driving_stopflag:
 
+        print("Current Map:")
+        print(Map)
+
         motors.stop()
         #check for goal completion conditions
         if not checkGoalComplete():
-            
             #initialize if map is empty
-            if Map == {}:
-                coords = {0,0}
+            if len(Map) == 0:
+                coords = (0,0)
                 Direction.append(0)
                 drive(motors,sensors)
-                 
+
+            print("The map")
+            print(Map)
+            print("The coords")
+            print(coords)
+            print("Is the coords not in the map?")
+            print(not coords in Map.keys())
+
             #scan intersection and update map
-            if coords not in Map:
+            if len(Map) == 0 or not coords in Map.keys():
+                print("adding new intersection")
                 addNewIntersection()
             checkBlockages()
         
@@ -498,6 +520,10 @@ def driving_loop():
 
             #drive and update coords/direction accordingly
             postDriveProcess(drive(motors, sensors))
+            print("coords part 2")
+            print(coords)
+            print("Directions:")
+            print(Direction)
             
             
 ###### User Inputs
@@ -529,18 +555,20 @@ def userinput():
 
 if __name__ == "__main__":
 
-    ULTRA_1 = Ultrasonic("ULTRA_1", ultra_left_echo, ultra_left_trig)
+    io = pigpio.pi()
+
+    ULTRA_1 = Ultrasonic("ULTRA_1", io, ultra_left_echo, ultra_left_trig)
     # Left sensor
-    ULTRA_2 = Ultrasonic("ULTRA_2", ultra_mid_echo, ultra_mid_trig)
+    ULTRA_2 = Ultrasonic("ULTRA_2", io, ultra_mid_echo, ultra_mid_trig)
     # Middle Sensor
-    ULTRA_3 = Ultrasonic("ULTRA_3", ultra_right_echo, ultra_right_trig)
+    ULTRA_3 = Ultrasonic("ULTRA_3", io, ultra_right_echo, ultra_right_trig)
     #Right Sensor
 
     #Initialize Motors
-    motors = Motor("motors", MTR1_LEGA, MTR1_LEGB, MTR2_LEGA, MTR2_LEGB, MAX_PWM_VALUE, PWM_FREQ)
+    motors = Motor("motors", io, MTR1_LEGA, MTR1_LEGB, MTR2_LEGA, MTR2_LEGB, MAX_PWM_VALUE, PWM_FREQ)
 
     #Initialize Infared
-    sensors = Sensor("sensors", sen_left_pin, sen_mid_pin, sen_right_pin)
+    sensors = Sensor("sensors", io, sen_left_pin, sen_mid_pin, sen_right_pin)
 
     #Initialize Second Thread to read sensors
     ULTRA_1.start()

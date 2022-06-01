@@ -17,6 +17,7 @@ from curses import can_change_color
 from sre_parse import Pattern
 from turtle import right
 import PathPlanning as path
+import ast
 
 
 # Define the motor pins.
@@ -661,7 +662,11 @@ def userinput():
                     f.write('%s:%s\n' % (key, value))
             print("saved map")
         elif (command == 'load'):
-            pass
+            global Map
+            with open("Map2.txt") as f:
+                data = f.read()
+                Map = ast.literal_eval(data)
+                print(Map)
         elif (command == 'home'):
             Map.clear()
             Direction = ["North"]
