@@ -229,7 +229,7 @@ if __name__ == '__main__':
     (0, -1):[[True, True, True, False], [True, True, True, True]],\
     (0, -2):[[True, False, False, False], [True, True, True, True]]}
 
-    print(pointToPointDirections(FullMap,(0,4),(-1,-1)))
+    #print(pointToPointDirections(FullMap,(0,4),(-1,-1)))
     
     #print(nearestUnexploredDirections(FullMap,(1,3)))
 
