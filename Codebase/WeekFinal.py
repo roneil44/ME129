@@ -144,6 +144,7 @@ def drive(motors, sensors):
         motors.movedist(0.130,0.5)
     motors.stop()
     time.sleep(0.25)
+    print(exit_condition)
     return(exit_condition)
 
 def spiralSearch():
@@ -423,7 +424,7 @@ def getNewDirection():
         if newDirections == []:            
             for i in range(4):
                 if Map[coords][0][i] and not Map[coords][1][i]:
-                    print("returning 1")
+                    print("Choosing to explore: "+str(i))
                     return i
 
     elif state == 2: #moving towards target
@@ -435,7 +436,6 @@ def getNewDirection():
         return newDirections[-1]
 
     # if no valid new direction is loaded, bot will turn around
-    print("returning 3")
     return (Direction[-1]+2)%4
 
 def turnToDirection(newDirection):
@@ -457,16 +457,23 @@ def postDriveProcess(driveResults):
 
     #shift coordinates due to successful drive
     if driveResults == 1:
+        global coords
+
+        print("shifting coords")
+
         lat = coords[0]
         lon = coords[1]
         if Direction[-1] == 0:
             coords  = (lat, lon+1)   
-        if Direction[-1] == 1:
+        elif Direction[-1] == 1:
             coords  = (lat-1, lon)
-        if Direction[-1] == 2:
+        elif Direction[-1] == 2:
             coords  = (lat, lon-1)
-        if Direction[-1] == 3:
+        elif Direction[-1] == 3:
             coords  = (lat+1, lon)
+        else:
+            print("DIRECTIONS CALL ERROR")
+            print(Direction[-1])
 
     #update blockage and flip direction
     if driveResults == 2:
@@ -486,6 +493,7 @@ def driving_stop():
 
 def driving_loop():
     global driving_stopflag
+    global coords
     driving_stopflag = False
 
     while not driving_stopflag:
@@ -595,6 +603,12 @@ if __name__ == "__main__":
     ULTRA_2.cbrise.cancel()
     ULTRA_3.cbrise.cancel()
     
+    #Write Map
+    with open("Map.txt","w") as f:
+        for key, value in Map.items():
+            f.write('%s:%s\n' % (key, value))
+
+
     # Shutdown Motors
     motors.shutdown()
 
