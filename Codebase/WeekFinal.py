@@ -97,10 +97,23 @@ def drive(motors, sensors):
         state = sensors.read()
 
         if state == 0:
-            find = wiggle()
-            if not find:
-                spiralSearch()
-                return -1
+
+            if ULTRA_1.dist<0.3 and ULTRA_3.dist<0.3:
+                #steering gain
+                k = 1.5
+                
+                #error
+                e = ULTRA_3.dist-ULTRA_1.dist
+                u = -k*e
+                
+                motors.move(max(0.5,min(0.9,0.7-u)),max(0.5,min(0.9,0.7+u)),0.02)
+    
+            else:
+
+                find = wiggle()
+                if not find:
+                    spiralSearch()
+                    return -1
 
         elif state == 1: #Drifted far left
             motors.setvel(0.1, 25, 0.01)
@@ -132,6 +145,11 @@ def drive(motors, sensors):
 
         #intersection found
         elif state == 7:  #Thick part of tape
+            #if ULTRA_1.dist<0.3 and ULTRA_3.dist<0.3:
+                #only go forward?
+                #exit_condition = 3
+                #pass
+            #else:
             exit_condition = 1
 
         #print(edge)
@@ -196,7 +214,7 @@ def wiggle():
         motors.angle(angle_to_turn, 'r')
         motors.stop()
         time.sleep(0.25)
-        angle_to_turn += 10
+        angle_to_turn += 20
     return False
 
 def spin(motors, sensors, turn_magnitude):
@@ -423,7 +441,13 @@ def getNewDirection():
         newDirections = nearestUnexploredDirections(Map,coords)
         if newDirections == []:            
             for i in range(4):
-                if Map[coords][0][i] and not Map[coords][1][i]:
+                intersectionData = Map[coords]
+                available = intersectionData[0]
+                travelled = intersectionData[1]
+                blocked = intersectionData[2]
+                print(available)
+                print(travelled)
+                if available[i] and not travelled[i]:
                     print("Choosing to explore: "+str(i))
                     return i
 
@@ -433,7 +457,7 @@ def getNewDirection():
     if newDirections != []:
         print("New Directions: ")
         print(newDirections)
-        return newDirections[-1]
+        return newDirections[0]
 
     # if no valid new direction is loaded, bot will turn around
     return (Direction[-1]+2)%4
@@ -454,12 +478,10 @@ def turnToDirection(newDirection):
 def postDriveProcess(driveResults):
     global coords
     global Direction
+    global Map
 
     #shift coordinates due to successful drive
     if driveResults == 1:
-        global coords
-
-        print("shifting coords")
 
         lat = coords[0]
         lon = coords[1]
@@ -474,6 +496,7 @@ def postDriveProcess(driveResults):
         else:
             print("DIRECTIONS CALL ERROR")
             print(Direction[-1])
+        
 
     #update blockage and flip direction
     if driveResults == 2:
@@ -486,6 +509,27 @@ def addNewIntersection():
     exploredPaths = [not availablePaths[0], not availablePaths[1], not availablePaths[2], not availablePaths[3]]
     unblockedPaths = [True, True, True, True]
     Map[coords] = [availablePaths,exploredPaths,unblockedPaths]
+
+def updateTraveledPaths():
+    global coords
+    global Map
+    global Direction
+
+    lat = coords[0]
+    lon = coords[1]
+
+    if Direction[-1] == 0:
+        previousCoords  = (lat, lon-1)   
+    elif Direction[-1] == 1:
+        previousCoords  = (lat+1, lon)
+    elif Direction[-1] == 2:
+        previousCoords  = (lat, lon+1)
+    elif Direction[-1] == 3:
+        previousCoords  = (lat-1, lon)
+
+    if previousCoords in Map and coords in Map:
+        Map[previousCoords][1][Direction[-1]] = True
+        Map[coords][1][(2+Direction[-1])%4] = True
 
 def driving_stop():
     global driving_stopflag
@@ -522,6 +566,7 @@ def driving_loop():
                 print("adding new intersection")
                 addNewIntersection()
             checkBlockages()
+            updateTraveledPaths()
         
             #choose new direction based on current goal and turn
             turnToDirection(getNewDirection())
