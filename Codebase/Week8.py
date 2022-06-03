@@ -17,6 +17,7 @@ from curses import can_change_color
 from sre_parse import Pattern
 from turtle import right
 import PathPlanning as path
+import ast
 
 
 # Define the motor pins.
@@ -52,9 +53,9 @@ ultra_right_echo = 21
 ultra_right_trig = 26
 
 global driving_stopflag
-
-global driving_state
+driving_state = False
 global next_location
+first = True
 
 def getUltraState(criticalDis:Optional[float] = .2):
     state = 0
@@ -219,7 +220,7 @@ def drive(motors, sensors):
     motors.stop()
     time.sleep(0.5)
     if(exit_condition == 1):
-        print("Intersection detected")
+        # print("Intersection detected")
         motors.movedist(0.130,0.5)
     motors.stop()
     time.sleep(0.25)
@@ -567,10 +568,12 @@ def drive_route(map, curr_heading, start_point, end_point):
     Direction.append(int_to_direction(curr_heading))
 
 def followroute(headings):
-    curr_heading = Direction[-1]
+    print(headings)
+    print("here")
+    curr_heading = direct_to_int()
 
     for next_dir in headings:
-        
+
         # Find difference between current direction and desired direction, then turn in that direction
         change = next_dir - curr_heading
         print(change)
@@ -580,8 +583,10 @@ def followroute(headings):
         drive(motors, sensors)
         # Now "next direction" is current direction
         curr_heading = next_dir
-    
-    Direction.append(int_to_direction(curr_heading))
+
+    curr_heading = int(curr_heading)
+    temp = int_to_direction(curr_heading)
+    Direction.append(temp)
 
 
 def driving_stop():
@@ -590,26 +595,36 @@ def driving_stop():
 def driving_loop():
     global driving_stopflag
     global next_location
+    global driving_state
 
     driving_stopflag = False
 
-    if driving_state == 1:
-        time.sleep(5000)
-    elif driving_state == 2:
-        drive_route(Map, Direction[-1], coords, next_location)
-        coords = next_location
+    coords = (0, 0)
 
     while not driving_stopflag:
+        
         drive(motors, sensors)
-        coords = (0, 0)
-        unexplored = True
-        if nearestUnexploredDirections(Map, coords) == []:
+
+        if driving_state == 0:
             choose_unexplored_direction(coords)
             coords = shift(coords)
-        else:
-            route, final_coord = nearestUnexploredDirections(Map, coords)
-            followroute(route)
-            coords = final_coord
+        elif driving_state ==1:
+            time.sleep(2)
+            choose_unexplored_direction(coords)
+            coords = shift(coords)
+            driving_state = 0
+        elif driving_state == 2:
+            # Drive to a destination specified by next_location
+            # TODO
+
+            driving_state = 0
+        elif driving_state == 3:
+            driving_stopflag = True
+            exit()
+        elif driving_state == 4:
+            coords = (0, 0)
+            driving_state = 0
+        
             
         
             
@@ -618,6 +633,8 @@ def driving_loop():
 def userinput():
     global driving_state
     global next_location
+    global Direction
+    
     while True:
         command = input("Command ? ")
         driving_state = 0
@@ -639,6 +656,22 @@ def userinput():
             print("quitting")
             driving_state = 3
             break
+        elif (command == 'save'):
+            with open("Map.txt","w") as f:
+                for key, value in Map.items():
+                    f.write('%s:%s\n' % (key, value))
+            print("saved map")
+        elif (command == 'load'):
+            global Map
+            with open("Map2.txt") as f:
+                data = f.read()
+                Map = ast.literal_eval(data)
+                print(Map)
+        elif (command == 'home'):
+            Map.clear()
+            Direction = ["North"]
+            print("cleared map")
+            driving_state = 4
         else:
             print("Unknown command '%s'" % command)
 
@@ -686,6 +719,11 @@ if __name__ == "__main__":
     ULTRA_2.cbrise.cancel()
     ULTRA_3.cbrise.cancel()
     
+    #Write Map
+    with open("Map.txt","w") as f:
+        for key, value in Map.items():
+            f.write('%s:%s\n' % (key, value))
+
     # Shutdown Motors
     motors.shutdown()
 
