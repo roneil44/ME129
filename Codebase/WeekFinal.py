@@ -439,13 +439,13 @@ def getNewDirection():
 
     if state == 0: #exploring
         newDirections = efficientExploringDirections(Map,coords)
-        if len(newDirections == 0):
+        if len(newDirections) == 0:
             resetBlockages()
             newDirections = efficientExploringDirections(Map,coords)
 
     elif state == 2: #moving towards target
         newDirections = targetedExploringDirections(Map,coords, destination)
-        if len(newDirections == 0):
+        if len(newDirections) == 0:
             resetBlockages()
             newDirections = targetedExploringDirections(Map,coords, destination)
 
