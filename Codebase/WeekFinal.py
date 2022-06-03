@@ -198,7 +198,7 @@ def spiralSearch():
 def wiggle():
     angle_to_turn = 15
     for i in range(4):
-        motors.angle(angle_to_turn, 'r')
+        motors.angle(angle_to_turn+5, 'r')
         motors.stop()
         time.sleep(0.25)
         if(sensors.read() != 0):
@@ -211,10 +211,10 @@ def wiggle():
         time.sleep(0.25)
         if (sensors.read()!= 0):
             return True
-        motors.angle(angle_to_turn, 'r')
+        motors.angle(angle_to_turn + 5, 'r')
         motors.stop()
         time.sleep(0.25)
-        angle_to_turn += 20
+        angle_to_turn += 10
     return False
 
 def spin(motors, sensors, turn_magnitude):
