@@ -1,7 +1,7 @@
 import threading
 
 from numpy import average
-from PathPlanning import nearestUnexploredDirections, pointToNearUnexplored
+from PathPlanning import pointToPointDirections, targetedExploringDirections, efficientExploringDirections, getDeadEndList
 from Motor import Motor
 import time
 from Sensor import Sensor
@@ -438,25 +438,19 @@ def getNewDirection():
     global Direction
 
     if state == 0: #exploring
-        newDirections = nearestUnexploredDirections(Map,coords)
-        if newDirections == []:            
-            for i in range(4):
-                intersectionData = Map[coords]
-                available = intersectionData[0]
-                travelled = intersectionData[1]
-                blocked = intersectionData[2]
-                print(available)
-                print(travelled)
-                if available[i] and not travelled[i]:
-                    print("Choosing to explore: "+str(i))
-                    return i
+        newDirections = efficientExploringDirections(Map,coords)
+        if len(newDirections == 0):
+            resetBlockages()
+            newDirections = efficientExploringDirections(Map,coords)
 
     elif state == 2: #moving towards target
-        newDirections = pointToNearUnexplored(Map, coords,destination)
+        newDirections = targetedExploringDirections(Map,coords, destination)
+        if len(newDirections == 0):
+            resetBlockages()
+            newDirections = targetedExploringDirections(Map,coords, destination)
 
     if newDirections != []:
-        print("New Directions: ")
-        print(newDirections)
+        print("New Directions: "+str(newDirections))
         return newDirections[0]
 
     # if no valid new direction is loaded, bot will turn around
@@ -578,7 +572,7 @@ def driving_loop():
             print("Directions:")
             print(Direction)
             
-            
+
 ###### User Inputs
 
 def userinput():
