@@ -79,7 +79,6 @@ def getUltraState(criticalDis:Optional[float] = .2):
         state += 2
     if ULTRA_3.get_dist() < criticalDis:
         state += 4
-
     return state
 
 def drive(motors, sensors):
@@ -91,8 +90,10 @@ def drive(motors, sensors):
     #bot is centered on end criteria when block ends
     exit_condition = -1
     edge = 'c' #Set edge for sensor updates l, r or c
+    turned_around = False #tracks if we ran into an obstacle or not
 
     while(exit_condition == -1):
+        ultra_state = getUltraState(0.1)
         #print("here")
         state = sensors.read()
 
@@ -121,8 +122,15 @@ def drive(motors, sensors):
 
 
         elif state == 2: #Bot Centered
-            motors.setvel(0.2, 0, 0.01)
-            edge = 'c'
+            if ultra_state == 2 or ultra_state == 3 or ultra_state == 7:
+                #all cases where middle sensor sees something in front
+                print("obstacle found")
+                motors.stop()
+                motors.angle(200) #spin 180 
+                turned_around = True
+            else:
+                motors.setvel(0.2, 0, 0.01)
+                edge = 'c'
 
 
         elif state == 3: #Drifted Left
@@ -150,14 +158,17 @@ def drive(motors, sensors):
                 #exit_condition = 3
                 #pass
             #else:
-            exit_condition = 1
+            if turned_around:
+                exit_condition = 2
+            else:
+                exit_condition = 1
 
         #print(edge)
         #print(state)
 
     motors.stop()
     time.sleep(0.5)
-    if(exit_condition == 1):
+    if(exit_condition == 1 or exit_condition == 2):
         print("Intersection detected")
         motors.movedist(0.130,0.5)
     motors.stop()
@@ -209,7 +220,7 @@ def wiggle():
         motors.angle(angle_to_turn, 'l')
         motors.stop()
         time.sleep(0.25)
-        if (sensors.read()!= 0):
+        if (sensors.read() != 0):
             return True
         motors.angle(angle_to_turn + 5, 'r')
         motors.stop()
@@ -419,7 +430,8 @@ def checkBlockages():
     indiceMap = [(Direction[-1]+1)%4, Direction[-1], (Direction[-1]+3)%4 ]
     
     #check ultrasonics and save to list
-    unBlocked = [True, True, True, True]
+    #motors.movedist(-0.130,0.5)
+    unBlocked = Map[coords][2]
     if ULTRA_1.dist < critDistance:
         unBlocked[indiceMap[0]] = False
     if ULTRA_2.dist < critDistance:
@@ -429,6 +441,8 @@ def checkBlockages():
 
     #save list to map
     Map[coords][2] = unBlocked
+    # motors.movedist(0.130,0.5)
+    motors.stop()
 
 def getNewDirection():
 
@@ -490,12 +504,11 @@ def postDriveProcess(driveResults):
         else:
             print("DIRECTIONS CALL ERROR")
             print(Direction[-1])
-        
 
-    #update blockage and flip direction
-    if driveResults == 2:
+    elif driveResults == 2:
         Map[coords][2][Direction[-1]] = False
         Direction.append((Direction[-1]+6)%4)
+        Map[coords][1][(2+Direction[-1])%4] = True
 
 # scan new intersection and add to map
 def addNewIntersection():
@@ -535,10 +548,6 @@ def driving_loop():
     driving_stopflag = False
 
     while not driving_stopflag:
-
-        print("Current Map:")
-        print(Map)
-
         motors.stop()
         #check for goal completion conditions
         if not checkGoalComplete():
@@ -632,7 +641,10 @@ if __name__ == "__main__":
         
     except BaseException as ex:
         print("Ending due to Exception: %s" % repr(ex))
-    
+
+    #stop the driving thread
+    driving_stop()
+
     # Exit Interupt handlers
     ULTRA_1.cbfall.cancel()
     ULTRA_2.cbfall.cancel()
@@ -641,7 +653,7 @@ if __name__ == "__main__":
     ULTRA_1.cbrise.cancel()
     ULTRA_2.cbrise.cancel()
     ULTRA_3.cbrise.cancel()
-    
+
     #Write Map
     with open("Map.txt","w") as f:
         for key, value in Map.items():
@@ -655,3 +667,5 @@ if __name__ == "__main__":
     ULTRA_1.stopcontinual()
     ULTRA_2.stopcontinual()
     ULTRA_3.stopcontinual()
+
+    
