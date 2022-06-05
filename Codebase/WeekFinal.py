@@ -1,6 +1,7 @@
 import threading
 
 from numpy import average
+from Week6 import drive_route
 from PathPlanning import pointToPointDirections, targetedExploringDirections, efficientExploringDirections, getDeadEndList
 from Motor import Motor
 import time
@@ -17,6 +18,7 @@ from curses import can_change_color
 from sre_parse import Pattern
 from turtle import right
 import PathPlanning as path
+import ast
 
 
 # Define the motor pins.
@@ -330,11 +332,9 @@ def check_complete_map():
     for key in Map:
         explored = Map.get(key)
         if False in explored[1]:
-            print('1')
             complete = False
             return
         else:
-            print('2')
             complete = True
 
 def centerOnLine():
@@ -382,7 +382,7 @@ def checkGoalComplete():
     if state == 0:
         if complete:
             print("Map complete")
-            return True
+            return False
 
         # # check condition for unexplored region of map blocked
         # elif nearestUnexploredDirections(Map, coords) == []:
@@ -396,7 +396,9 @@ def checkGoalComplete():
 
     elif state == 1:
         #return true as pause is complete as is
-        return True
+        time.sleep(2)
+        state = 0
+        return False
 
     elif state ==  2:
         #return true if arrived at destination or can't find a route
@@ -405,11 +407,12 @@ def checkGoalComplete():
             return True
 
         elif complete and destination not in Map:
-            print("Destination Not On Map")
+            print("Destination Not On Map going to closest")
             return True 
 
         else:
-            print("Still moving towards destination")
+            print("Moving towards destination")
+            #drive_route(Map, Direction[-1], coords, destination)
             return False
         
     #not sure - true to enact pause
@@ -475,8 +478,6 @@ def turnToDirection(newDirection):
     global motors
     global sensors
 
-    print(newDirection)
-    print(Direction[-1])
 
     turnCount = 4+newDirection-Direction[-1]
     turnCount = turnCount%4
@@ -503,7 +504,6 @@ def postDriveProcess(driveResults):
             coords  = (lat+1, lon)
         else:
             print("DIRECTIONS CALL ERROR")
-            print(Direction[-1])
 
     elif driveResults == 2:
         Map[coords][2][Direction[-1]] = False
@@ -557,16 +557,8 @@ def driving_loop():
                 Direction.append(0)
                 drive(motors,sensors)
 
-            print("The map")
-            print(Map)
-            print("The coords")
-            print(coords)
-            print("Is the coords not in the map?")
-            print(not coords in Map.keys())
-
             #scan intersection and update map
             if len(Map) == 0 or not coords in Map.keys():
-                print("adding new intersection")
                 addNewIntersection()
             checkBlockages()
             updateTraveledPaths()
@@ -576,34 +568,55 @@ def driving_loop():
 
             #drive and update coords/direction accordingly
             postDriveProcess(drive(motors, sensors))
-            print("coords part 2")
-            print(coords)
-            print("Directions:")
-            print(Direction)
             
 
 ###### User Inputs
 
 def userinput():
+    global state
+    global Map
+    global Direction
+    global destination
+
     while True:
+        
         command = input("Command ? ")
-        driving_state = 0
+        state = 0
         if (command == 'pause'):
             print ("pausing")
-            driving_state = 1
+            state = 1
         elif (command == 'explore'):
-            driving_state = 0
+            state = 0
         elif (command == 'goto'):
             target = input("target ? ")
-            driving_state = 2
+            temp = target.split()
+            long = temp[0]
+            lat = temp[1]
+            state = 2
+            destination = (long,lat)
         elif (command == 'print'):
             print(Map)
         elif (command == 'exit'):
             print("quitting")
-            driving_state = 3
+            state = 3
+            break
+        elif (command == 'save'):
+            with open("Map.txt","w") as f:
+                for key, value in Map.items():
+                    f.write('%s:%s\n' % (key, value))
+            print("saved map")
+        elif (command == 'load'):
+            with open("Map2.txt") as f:
+                data = f.read()
+                Map = ast.literal_eval(data)
+                print(Map)
+        elif (command == 'home'):
+            Map.clear()
+            Direction = [0]
+            print("cleared map")
+            state = 4
         else:
             print("Unknown command '%s'" % command)
-        return(driving_state)
 
 
 

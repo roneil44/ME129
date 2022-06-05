@@ -117,11 +117,11 @@ def targetedExploringDirections(Map, StartingPosition, Destination):
                 headings.append(i)
         
         bestHeading = headings[0]
-        newDistance = distance(shift(StartingPosition,headings[0]))
-        for i in headings:
-            potentialDistance = distance(shift(StartingPosition,headings[i]))
+        newDistance = distance(shift(StartingPosition,headings[0]), Destination)
+        for dir in headings:
+            potentialDistance = distance(shift(StartingPosition,dir), Destination)
             if potentialDistance<newDistance:
-                bestHeading = headings[i]
+                bestHeading = dir
                 newDisatnce = potentialDistance
         return [bestHeading]
     else:
@@ -197,6 +197,11 @@ def distance(coord1, coord2):
     #returns distance between two points on the grid - distance using only xy movements
     (x1,y1) = coord1
     (x2,y2) = coord2
+
+    x1 = int(x1)
+    x2 = int(x2)
+    y1 = int(y1)
+    y2 = int(y2)
 
     dx = x2-x1
     dy = y2-y1

@@ -9,9 +9,7 @@ from turtle import right
 from Motor import Motor
 import time
 from Sensor import Sensor
-import config
 import random
-from Intersection import Intersection
 import PathPlanning as path
 
 # Define the motor pins.
